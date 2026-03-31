@@ -1,7 +1,7 @@
 
 function initPage() {
  
-   requireAuth(true);
+     requireAuth(true);
 
    
     const form = document.getElementById('book-form');

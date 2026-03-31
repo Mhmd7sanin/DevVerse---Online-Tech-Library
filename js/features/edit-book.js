@@ -5,7 +5,7 @@ let currentBookStatus = null;
 
 function initPage() {
   
-   // requireAuth(true);
+    requireAuth(true);
 
 
     const urlParams = new URLSearchParams(window.location.search);

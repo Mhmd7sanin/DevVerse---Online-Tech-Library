@@ -4,7 +4,7 @@ let bookToDeleteId = null;
 
 function initPage() {
     
- requireAuth(true);
+   requireAuth(true);
 
     
     const searchInput = document.getElementById('search-input');
@@ -25,7 +25,7 @@ function renderTable(booksArray) {
     const tableBody = document.getElementById('table-body');
     const bookCount = document.getElementById('book-count');
 
-    bookCount.textContent = `Total books: ${booksArray.length +1}`;
+    bookCount.textContent = `Total books: ${booksArray.length }`;
     
    
     tableBody.innerHTML = '';
