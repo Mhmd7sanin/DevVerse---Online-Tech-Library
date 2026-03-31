@@ -1,0 +1,42 @@
+
+.main-content {
+  padding-top: 20px;
+}
+
+.page-header__right {
+  display: flex;
+  flex-direction: row; 
+  align-items: center;  
+  gap: 16px;           
+}
+
+/* Adjust search width */
+.search-bar {
+  flex: 1;
+  min-width: 260px;
+  max-width: 360px;
+}
+
+/* Table actions styling */
+.table-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Action links */
+.action-edit {
+  color: var(--color-accent);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.action-delete {
+  color: var(--color-danger);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.action-edit:hover,
+.action-delete:hover {
+  text-decoration: underline;
+}
