@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Users — DevVerse</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <!-- Global FIRST -->
+  <link rel="stylesheet" href="../../css/global.css">
+  <!-- Your CSS -->
+  <link rel="stylesheet" href="../../css/pages/users.css">
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <div id="navbar-container"></div>
+
+  <main class="page-wrapper page-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      
+      <div class="page-header__left">
+        <h1>Manage Users</h1>
+        <p>
+          Total registered members:
+          <span id="user-count">4</span>
+        </p>
+      </div>
+
+      <div class="page-header__right">
+
+        <!-- Search -->
+        <div class="search-bar">
+          <span class="search-bar__icon">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </span>
+          <input 
+            type="text" 
+            id="user-search" 
+            class="search-bar__input"
+            placeholder="Search users..."
+          >
+        </div>
+
+        <!-- Button -->
+        <a href="create-account.html" class="btn btn-primary">
+          <i class="fa-solid fa-user-plus"></i>
+          Add New Account
+        </a>
+
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table class="data-table">
+
+        <thead>
+          <tr>
+            <th>USER INFO</th>
+            <th>ROLE</th>
+            <th>BORROWED</th>
+            <th>ACTIONS</th>
+          </tr>
+        </thead>
+
+        <tbody id="users-tbody">
+        </tbody>
+
+      </table>
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/navbar.js"></script>
+  <script src="../../js/features/admin-users.js"></script>
+
+</body>
+</html>
