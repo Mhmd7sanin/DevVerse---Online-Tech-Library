@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Catalog — DevVerse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/global.css">
+  <link rel="stylesheet" href="../../css/pages/dashboard.css">
+</head>
+<body>
+  <div id="navbar-container"></div>
+
+  <main class="main-content catalog-page">
+    
+    <header class="page-header">
+      <div class="page-header__left">
+        <h1 id="catalog-title">Book Catalog</h1>
+        <p id="book-count">Total books: 0</p>
+      </div>
+    </header>
+
+    <div class="catalog-controls">
+      <div class="search-bar">
+        <svg class="search-bar__icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="search-input" class="search-bar__input" placeholder="Search catalog...">
+      </div>
+      <a href="add-book.html" class="btn btn-primary">+ Add New Book</a>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>NAME</th>
+            <th>AUTHOR</th>
+            <th>CATEGORY</th>
+            <th></th> </tr>
+        </thead>
+        <tbody id="table-body">
+          </tbody>
+      </table>
+      
+      <div id="empty-state" class="empty-state" style="display: none;">
+        <p>No books found. Try adjusting your search or add a new book.</p>
+      </div>
+    </div>
+
+  </main>
+
+  <div class="dialog-overlay" id="delete-dialog">
+    <div class="dialog">
+      <h3 class="dialog__title">Delete this book?</h3>
+      <p class="dialog__body">This cannot be undone.</p>
+      <div class="dialog__actions">
+        <button id="dialog-cancel" class="btn btn-secondary">Cancel</button>
+        <button id="dialog-confirm" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="../../js/seed.js"></script>
+
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/navbar.js"></script>
+  <script src="../../js/features/admin-catalog.js"></script>
+</body>
+</html>
