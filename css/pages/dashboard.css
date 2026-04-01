@@ -1,0 +1,22 @@
+
+
+.catalog-page {
+  padding: 32px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.catalog-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+
+.search-bar {
+  max-width: 400px;
+  flex-grow: 1;
+}
+

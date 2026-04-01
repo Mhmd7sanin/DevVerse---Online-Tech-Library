@@ -253,30 +253,6 @@
 
 /* ================================================================
    GLOBAL UTILITIES  (called by page scripts — stay in global scope)
-================================================================ */
-
-function logoutUser() {
-  clearCurrentUser();
-  const depth  = (window.location.pathname.match(/\//g) || []).length - 1;
-  const prefix = depth >= 2 ? '../../' : depth === 1 ? '../' : './';
-  window.location.href = prefix + 'pages/auth/login.html';
-}
-
-function requireAuth(adminOnly) {
-  const user   = getCurrentUser();
-  const depth  = (window.location.pathname.match(/\//g) || []).length - 1;
-  const prefix = depth >= 2 ? '../../' : depth === 1 ? '../' : './';
-
-  if (!user) {
-    window.location.href = prefix + 'pages/auth/login.html';
-    return null;
-  }
-  if (adminOnly && !user.isAdmin) {
-    window.location.href = prefix + 'pages/user/browse.html';
-    return null;
-  }
-  if (!adminOnly && user.isAdmin) {
-    window.location.href = prefix + 'pages/admin/dashboard.html';
     return null;
   }
   return user;
