@@ -1,103 +1,44 @@
-// js/features/profile.js
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Library — DevVerse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/global.css">
+  <link rel="stylesheet" href="../../css/pages/my-library.css">
+</head>
+<body>
+  <div id="navbar-container"></div>
 
-// 1. Auth Guard: Redirects unauthenticated users
-if (typeof requireAuth === 'function') {
-    requireAuth(false);
-}
-
-document.addEventListener('DOMContentLoaded', initPage);
-
-// 2. Initialize Page
-function initPage() {
-    // Fetch user data (fallback to mock data for testing)
-    const user = (typeof getCurrentUser === 'function') ? getCurrentUser() : JSON.parse(localStorage.getItem('dv_current_user')) || {
-        username: "alex_dev",
-        email: "alex@example.com",
-        createdAt: "2026-03-29",
-        borrowedBooks: [{ bookId: "b_001", borrowedAt: "2026-03-29" }]
-    };
-
-    populateProfile(user);
-    renderBorrowedList(user);
-}
-
-// 3. Fills in all the profile fields from the user object
-function populateProfile(user) {
-    if (!user) return;
-
-    const usernameEl = document.getElementById('profile-username');
-    const emailEl = document.getElementById('profile-email');
-    const initialsEl = document.getElementById('profile-initials');
-    const sinceEl = document.getElementById('profile-since');
-    const countEl = document.getElementById('profile-count');
-
-    if (usernameEl) usernameEl.textContent = `@${user.username}`;
-    if (emailEl) emailEl.textContent = user.email;
-    
-    // Extract first 2 letters for the avatar
-    if (initialsEl && user.username) {
-        initialsEl.textContent = user.username.substring(0, 2).toUpperCase();
-    }
-
-    if (sinceEl && user.createdAt) {
-        sinceEl.textContent = formatDate(user.createdAt);
-    }
-
-    if (countEl) {
-        const count = user.borrowedBooks ? user.borrowedBooks.length : 0;
-        countEl.textContent = `${count} title${count !== 1 ? 's' : ''}`;
-    }
-}
-
-// 4. Renders the "Currently Borrowed" horizontal list
-function renderBorrowedList(user) {
-    const listContainer = document.getElementById('borrowed-list');
-    if (!listContainer) return;
-
-    // Show empty state message if no books are borrowed
-    if (!user.borrowedBooks || user.borrowedBooks.length === 0) {
-        listContainer.innerHTML = '<p class="empty-state__msg">No books currently borrowed.</p>';
-        return;
-    }
-
-    // Fetch all books
-    const allBooks = (typeof getBooks === 'function') ? getBooks() : JSON.parse(localStorage.getItem('dv_books')) || [
-        { id: "b_001", name: "The Clean Coder", author: "Robert C. Martin", category: "Backend" }
-    ];
-
-    // Build HTML for each borrowed book
-    const html = user.borrowedBooks.map(borrowed => {
-        const book = allBooks.find(b => b.id === borrowed.bookId);
-        return book ? buildBorrowedItem(book, borrowed.borrowedAt) : '';
-    }).join('');
-
-    listContainer.innerHTML = html;
-}
-
-// 5. Builds one horizontal borrowed item card HTML string
-function buildBorrowedItem(book, borrowedAt) {
-    return `
-        <div class="borrowed-item">
-            <div class="borrowed-item__cover">
-                <div class="library-cover-box" style="font-size: 8px;">
-                    <span style="font-size: 16px; margin-bottom: 2px;">🤍</span>
-                    ${book.category.substring(0, 4).toUpperCase()}
-                </div>
-            </div>
-            <div class="borrowed-item__info">
-                <div class="borrowed-item__category">${book.category}</div>
-                <div class="borrowed-item__title">${book.name}</div>
-                <div class="borrowed-item__author">${book.author}</div>
-                <div class="borrowed-item__date">📅 Borrowed ${formatDate(borrowedAt)}</div>
-            </div>
+  <main class="main-content page-wrapper page-content">
+    <div class="library-header section-header">
+        <div>
+            <h1>Your Library</h1>
+            <p class="library-subtitle" id="borrow-count">You have borrowed 0 books.</p>
         </div>
-    `;
-}
+    </div>
+    
+    <div id="empty-state" class="empty-state" style="display: none;">
+        <div class="empty-state__icon">📚</div>
+        <h3 class="empty-state__title">You haven't borrowed any books yet.</h3>
+        <p class="empty-state__msg">Explore our catalog and start reading today.</p>
+        <a href="browse.html" class="btn btn-primary" style="margin-top: 16px;">Browse the catalog</a>
+    </div>
 
-// 6. Formats a date string like "2026-03-29" -> "March 29, 2026"
-function formatDate(dateString) {
-    if (!dateString) return '';
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', options);
-}
+    <div class="book-grid" id="library-grid">
+        </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+        <p class="footer__copy">© 2026 DevVerse. Premium Reading Identity.</p>
+    </div>
+  </footer>
+
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/navbar.js"></script>
+  <script src="../../js/features/my-library.js"></script>
+</body>
+</html>
