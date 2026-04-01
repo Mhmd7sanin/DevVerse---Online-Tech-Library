@@ -143,5 +143,5 @@ function deleteUser(userId) {
  * Redirects to the Edit User page
  */
 function editUser(userId) {
-    window.location.href = `edit-user.html?id=${userId}`;
+   /* window.location.href = `edit-user.html?id=${userId}`;*/
 }
