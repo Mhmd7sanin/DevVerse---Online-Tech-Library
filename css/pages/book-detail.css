@@ -2,7 +2,7 @@
   display: grid;
   grid-template-columns: 2fr 3fr;
   gap: 48px;
-  padding: 40px;
+  padding: 0px 24px;
 }
 
 .detail-cover-card {
@@ -63,3 +63,4 @@
   border-radius: 8px;
   cursor: not-allowed;
 }
+

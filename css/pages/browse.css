@@ -12,3 +12,91 @@
   flex-direction: column;
   gap: 16px;
 }
+
+
+.book-card__avail--owned {
+    color: #94970e;
+}
+
+/* =========================
+   BASE (Desktop)
+========================= */
+
+/* Browse */
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.filter-pills {
+  display: flex;
+  gap: 10px;
+}
+
+/* Detail */
+.detail-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 30px;
+}
+
+.detail-cover-card img {
+  width: 100%;
+}
+
+
+/* =========================
+   TABLET (<= 768px)
+========================= */
+@media (max-width: 768px) {
+
+  /* Browse → 3 columns */
+  .books-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* pills wrap */
+  .filter-pills {
+    flex-wrap: wrap;
+  }
+
+  /* Detail → narrower cover */
+  .detail-layout {
+    grid-template-columns: 200px 1fr;
+  }
+
+}
+
+
+/* =========================
+   MOBILE (<= 390px)
+========================= */
+@media (max-width: 390px) {
+
+  /* Browse → 2 columns */
+  .books-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* pills scroll horizontally */
+  .filter-pills {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .filter-pills::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Detail → stack */
+  .detail-layout {
+    display: block;
+  }
+
+  .detail-cover-card img {
+    width: 100%;
+  }
+
+}

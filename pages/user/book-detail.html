@@ -10,19 +10,19 @@
 
 <body>
 
-  <a href="browse.html" class="back-link">← Back to Catalog</a>
+  <div id="navbar-container"></div>
+  <a href="browse.html" class="back-link" style="padding-left: 20px; margin-top: 15px; margin-bottom: 10px;">← Back to Catalog</a>
 <div class="detail-layout">
 
   <!-- LEFT -->
 
   <div class="detail-cover-card">
-    <span id="availability-badge">ex</span>
+    <span id="availability-badge"></span>
     <img src="c:\\Users\\MH\\Desktop\\ff.png" alt="">
   </div>
 
   <!-- RIGHT -->
   <div>
-
     <p id="book-category" class="detail-category"></p>
     <h1 id="book-title" class="detail-title">ex</h1>
     <p id="book-author" class="detail-author"></p>
@@ -33,29 +33,19 @@
     <hr>
 
     <div class="detail-borrow-section">
-      <button id="borrow-btn" class="unavailable-button" onclick="handleBorrow()">Borrow this Book</button>
+      <button id="borrow-btn" class="unavailable-button">Borrow this Book</button>
+      <span id="borrow-message" class="borrow-message" style="display: none;">book will be available after: <span id="days-left">0</span> days</span>
     </div>
 
+
+  </div>
 </div>
-
-<script src="../../js/storage.js"></script>
-<script src="../../js/features/book-detail.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const params = new URLSearchParams(window.location.search);
-      const bookId = params.get('id');
-      const book = getBookById(bookId);
-
-      availableButton(book.isAvailable);
-
-      isavailable(book.isAvailable);
-
-      document.getElementById('book-title').textContent = book.name;
-      document.getElementById('book-author').textContent = book.author;
-      document.getElementById('book-category').textContent = book.category;
-      document.getElementById('book-description').textContent = book.description;
-    });
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/seed.js"></script>
+  <script src="../../js/navbar.js"></script>
+  <script src="../../js/features/book-detail.js"></script>
+  <script>
+    initPage();
   </script>
-
 </body>
 </html>
