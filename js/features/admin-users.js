@@ -1,111 +1,218 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Manage Users — DevVerse</title>
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-  <!-- Global FIRST -->
-  <link rel="stylesheet" href="../../css/global.css">
-  <!-- Your CSS -->
-  <link rel="stylesheet" href="../../css/pages/users.css">
-</head>
+document.addEventListener('DOMContentLoaded', () => {
+    initPage();
+});
 
-<body>
+/**
+ * Initial page setup
+ */
+function initPage() {
+    // 2. Load data from storage (using storage.js)
+    const users = getUsers();
 
-  <!-- Navbar -->
-  <div id="navbar-container"></div>
+    // 3. Render the data into the page
+    renderUsersTable(users);
 
-  <main class="page-wrapper page-content">
+    // 4. Wire up events (search)
+    const searchInput = document.getElementById('user-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', filterUsers);
+    }
+}
 
-    <!-- Page Header -->
-    <div class="page-header">
-      
-      <div class="page-header__left">
-        <h1>Manage Users</h1>
-        <p>
-          Total registered members:
-          <span id="user-count">0</span>
-        </p>
-      </div>
+/**
+ * Renders the user table rows or shows empty state
+ * @param {Array} usersArray 
+ */
+function renderUsersTable(usersArray) {
+    const tbody = document.getElementById('users-tbody');
+    const userCountEl = document.getElementById('user-count');
 
-      <div class="page-header__right">
+    if (!tbody) return;
 
-        <!-- Search -->
-        <div class="search-bar">
-          <span class="search-bar__icon">
-            <i class="fa-solid fa-magnifying-glass"></i>
-          </span>
-          <input 
-            type="text" 
-            id="user-search" 
-            class="search-bar__input"
-            placeholder="Search users..."
-          >
+    // Update the counter at the top
+    userCountEl.textContent = usersArray.length;
+
+    if (usersArray.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px;">No users found.</td></tr>`;
+        return;
+    }
+
+    // Rule: Use .map(buildUserRow).join('') to render lists
+    tbody.innerHTML = usersArray.map(buildUserRow).join('');
+}
+
+/**
+ * Builds ONE row of HTML for ONE user
+ * @param {Object} user 
+ * @returns {string} HTML row
+ */
+function buildUserRow(user) {
+  const initials = getInitials(user.username);
+  const isAdmin = user.isAdmin === true;
+
+  const roleClass = isAdmin ? 'role-badge--admin' : 'role-badge--user';
+  const roleText = isAdmin ? 'ADMIN' : 'USER';
+
+  const currentUser = getCurrentUser();
+
+  const canDelete =
+     !isAdmin ||
+     (currentUser?.username === 'admin' && user.username !== 'admin');
+
+  return `
+    <tr>
+      <td>
+        <div class="user-info">
+          <div class="avatar">${initials}</div>
+          <div class="user-details">
+            <span class="name">${user.username}</span>
+            <span class="email">${user.email}</span>
+          </div>
         </div>
+      </td>
 
-        <!-- Button -->
-        <a href="create-account.html" class="btn btn-primary">
-          <i class="fa-solid fa-user-plus"></i>
-          Add New Account
-        </a>
+      <td>
+        <span class="role-badge ${roleClass}">${roleText}</span>
+      </td>
 
-      </div>
-    </div>
+      <td>${user.borrowedBooks.length} books</td>
 
-    <!-- Table -->
-    <div class="table-wrap">
-      <table class="data-table">
-
-        <thead>
-          <tr>
-            <th>USER INFO</th>
-            <th>ROLE</th>
-            <th>BORROWED</th>
-            <th>ACTIONS</th>
-          </tr>
-        </thead>
-        <tbody id="users-tbody">
-        </tbody>
-
-      </table>
-    </div>
-
-  </main>
-
-  <!-- Scripts -->
-  <script src="../../js/storage.js"></script>
-  <script src="../../js/seed.js"></script>
-  <script src="../../js/navbar.js"></script>
-  <script src="../../js/features/admin-users.js"></script>
-
-<!-- Delete Dialog -->
-<div id="delete-overlay" class="dialog-overlay">
-  <div class="dialog">
-    <h3 class="dialog__title">Delete this user?</h3>
-    <p class="dialog__body">This cannot be undone.</p>
-
-    <div class="dialog__actions">
-      <button class="btn btn-secondary" onclick="closeDeleteDialog()">Cancel</button>
-      <button class="btn btn-danger" id="confirm-delete-btn">Delete</button>
-    </div>
+    <td>
+  <div class="table-actions">
+    <span class="action-edit" onclick="openEditDialog()">Edit</span>
+    ${
+      canDelete
+        ? `<span class="action-delete" onclick="openDeleteDialog('${user.id}')">Delete</span>`
+        : '<span style="color:#ccc">—</span>'
+    }
   </div>
-</div>
-
-<!-- Edit Dialog -->
-<div id="edit-overlay" class="dialog-overlay">
-  <div class="dialog">
-    <h3 class="dialog__title">Edit</h3>
-    <p class="dialog__body">Not implemented yet.</p>
-
-    <div class="dialog__actions">
-      <button class="btn btn-primary" onclick="closeEditDialog()">OK</button>
-    </div>
-  </div>
-</div>
+</td>
+    </tr>
+  `;
+}
 
 
-</body>
-</html>
+
+
+/**
+ * Returns initials from username (e.g., "alex_reader" -> "AR")
+ */
+function getInitials(username) {
+    if (!username) return "??";
+    // Split by space or underscore
+    const parts = username.split(/[ _]/);
+    if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return username.substring(0, 2).toUpperCase();
+}
+
+/**
+ * Filters users by search input text
+ */
+function filterUsers() {
+    const query = document.getElementById('user-search').value.toLowerCase().trim();
+    const allUsers = getUsers(); // Get fresh data from storage.js
+
+    const filtered = query
+        ? allUsers.filter(user => 
+            user.username.toLowerCase().includes(query) || 
+            user.email.toLowerCase().includes(query)
+          )
+        : allUsers;
+
+    renderUsersTable(filtered);
+}
+
+/**
+ * Deletes a user by ID and refreshes the table
+ */
+function deleteUser(userId) {
+    if (confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
+        // Use storage.js logic: Get, Filter, Save
+        let users = getUsers();
+        users = users.filter(u => u.id !== userId);
+        
+        saveUsers(users); // Function from storage.js
+        
+        // Re-render the table with fresh data
+        renderUsersTable(getUsers());
+        showToast('User deleted successfully', 'success'); // If you have a toast system
+    }
+}
+
+
+let selectedUserId = null;
+
+function openDeleteDialog(userId) {
+  selectedUserId = userId;
+  document.getElementById('delete-overlay').classList.add('open');
+}
+
+function closeDeleteDialog() {
+  selectedUserId = null;
+  document.getElementById('delete-overlay').classList.remove('open');
+}
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const confirmBtn = document.getElementById('confirm-delete-btn');
+
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', () => {
+      if (!selectedUserId) return;
+
+      let users = getUsers();
+      users = users.filter(u => u.id !== selectedUserId);
+
+      saveUsers(users);
+
+      closeDeleteDialog();
+      renderUsersTable(getUsers());
+
+      showToast('User deleted successfully', 'success');
+    });
+  }
+});
+
+function openEditDialog() {
+  document.getElementById('edit-overlay').classList.add('open');
+}
+
+function closeEditDialog() {
+  document.getElementById('edit-overlay').classList.remove('open');
+}
+
+
+function showToast(message, type = 'default') {
+  const toast = document.createElement('div');
+  toast.className = `toast toast--${type}`;
+  toast.textContent = message;
+
+  document.body.appendChild(toast);
+
+  setTimeout(() => toast.classList.add('show'), 10);
+
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+
+/**
+ * Redirects to the Edit User page
+ */
+function editUser(userId) {
+    /*window.location.href = `edit-user.html?id=${userId}`;*/
+
+
+
+
+
+
+    
+}
