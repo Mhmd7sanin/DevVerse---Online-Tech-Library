@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Browse Books</title>
+
+  <link rel="stylesheet" href="../../css/global.css">
+  <link rel="stylesheet" href="../../css/pages/browse.css">
+</head>
+
+<body class="browse-page">
+
+  <!-- NAVBAR (already handled) -->
+
+
+  <!-- PAGE HEADER -->
+  <div class="browse-header">
+    <h1>Discover New Reads</h1>
+  </div>
+
+
+   <!-- SEARCH & FILTERS -->
+  <div class="browse-controls">
+
+      <!-- SEARCH -->
+      <div class="search-bar">
+        <input 
+          type="text" 
+          id="search-input"
+          class="search-bar__input"
+          placeholder="Search catalog..."
+        >
+      </div>
+
+
+      <!-- FILTERS -->
+      <div class="filter-pills" id="filter-pills">
+        <button class="filter-pill active" data-cat="All">All</button>
+        <button class="filter-pill" data-cat="Frontend">Frontend</button>
+        <button class="filter-pill" data-cat="Backend">Backend</button>
+        <button class="filter-pill" data-cat="Architecture">Architecture</button>
+        <button class="filter-pill" data-cat="DevOps">DevOps</button>
+        <button class="filter-pill" data-cat="Data Science">Data Science</button>
+        <button class="filter-pill" data-cat="Security">Security</button>
+        <button class="filter-pill" data-cat="Productivity">Productivity</button>
+        <button class="filter-pill" data-cat="Computer Science">Computer Science</button>
+      </div>
+
+  </div>
+
+
+  <!-- BOOK GRID -->
+  <div id="books-grid" class="book-grid">
+    <!-- Book cards will be dynamically inserted here -->
+  </div>
+
+
+
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/features/browse.js"></script>
+  <script>
+    document.getElementById('search-input').addEventListener('input', filterAndSearchBooks);
+
+    document.querySelectorAll('.filter-pill').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.filter-pill').forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        filterAndSearchBooks();
+      });
+    });
+  </script>
+
+</body>
+</html>
