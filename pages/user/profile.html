@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile — DevVerse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/global.css">
+  <link rel="stylesheet" href="../../css/pages/profile.css">
+</head>
+<body>
+  <div id="navbar-container"></div>
+
+  <main class="main-content page-wrapper page-content profile-wrapper">
+    <div class="profile-header profile-section">
+        <div class="profile-avatar-box">
+            <span class="user-avatar user-avatar--lg" id="profile-initials">BE</span>
+        </div>
+        <div class="profile-info">
+            <h2 class="profile-info__username">
+                <span id="profile-username">@username</span> <span class="profile-badge">BOOK ENTHUSIAST</span>
+            </h2>
+            <p class="profile-info__email" id="profile-email">email@example.com</p>
+            <p class="profile-info__bio">Passionate about clean code, system architecture, and building scalable tech solutions.</p>
+            
+            <div class="profile-stats" style="margin-top: 16px;">
+                <div>
+                    <div class="profile-stat__label">Member Since</div>
+                    <div class="profile-stat__value" id="profile-since">January 2026</div>
+                </div>
+                <div>
+                    <div class="profile-stat__label">Books Borrowed</div>
+                    <div class="profile-stat__value" id="profile-count">0 titles</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-divider"></div>
+    
+    <div class="section-header">
+        <h2>Currently Borrowed</h2>
+        <a href="my-library.html">Manage All →</a>
+    </div>
+    
+    <div class="borrowed-list" id="borrowed-list">
+        </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+        <p class="footer__copy">© 2026 DevVerse. Premium Reading Identity.</p>
+    </div>
+  </footer>
+
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/navbar.js"></script>
+  <script src="../../js/features/profile.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+/* css/pages/my-library.css */
+
+.library-page {
+    padding-top: 32px;
+}
+
+.library-header {
+    margin-bottom: 32px;
+}
+
+.library-subtitle {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin-top: 4px;
+}
+
+/* Custom cover box for SVGs */
+.library-cover-box {
+    background-color: var(--color-surface);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    font-size: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px 8px 0 0;
+}
+
+.library-cover-box .svg-wrapper {
+    margin-bottom: 12px;
+    color: var(--color-text-secondary);
+}
+
+/* Fallback for card body to ensure button sticks to bottom */
+.book-card__body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* --- Responsive Rules for Library Grid --- */
+/* Tablet (768px): 3-column grid */
+@media (max-width: 1024px) {
+    #library-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Mobile (390px): 2-column grid */
+@media (max-width: 768px) {
+    #library-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .library-header h1 {
+        font-size: 24px;
+    }
+}
