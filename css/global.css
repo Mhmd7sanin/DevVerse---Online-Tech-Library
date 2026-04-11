@@ -7,71 +7,86 @@
    ============================================================ */
 
 
-/* ============================================================
-   1. GOOGLE FONTS IMPORT
-   ============================================================ */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 
-/* ============================================================
-   2. CSS CUSTOM PROPERTIES (DESIGN TOKENS)
-   ============================================================ */
+/* ================================================================
+   1. DESIGN TOKENS
+================================================================ */
 :root {
+  /* Accent */
+  --color-primary:       #2563EB;
+  --color-primary-hover: #1D4ED8;
+  --color-primary-light: #EFF6FF;
+  --color-primary-text:  #1E40AF;
+  --color-accent:       #2563EB;  
+  --color-accent-hover: #1D4ED8;  
+  --color-accent-light: #EFF6FF;   
+  --color-accent-text:  #1E40AF;  
 
-  /* --- Backgrounds --- */
-  --color-bg:           #FFFFFF;   /* all page backgrounds */
-  --color-surface:      #F5F5F5;   /* auth page bg, card surfaces */
-  --color-surface-2:    #F8F9FA;   /* default book cover, table row alt */
+  /* Backgrounds */
+  --color-bg:      #FFFFFF;
+  --color-surface: #F5F5F5;
+  --color-surface-2:    #F8F9FA;
+  --color-cover:   #F8F9FA;
 
-  /* --- Borders --- */
-  --color-border:       #E5E7EB;   /* default border — barely visible */
-  --color-border-md:    #D1D5DB;   /* input borders, stronger dividers */
+  /* Text */
+  --color-text:       #111827;
+  --color-text-light: #6B7280;
+  --color-text-muted: #9CA3AF;
+  --color-text-primary:   #111827; 
+  --color-text-secondary: #6B7280; 
+  --color-text-muted:     #9CA3AF;
 
-  /* --- Text --- */
-  --color-text-primary:   #111827; /* headings, main body text */
-  --color-text-secondary: #6B7280; /* subtitles, labels, secondary info */
-  --color-text-muted:     #9CA3AF; /* placeholders, captions, form labels */
-
-  /* --- Accent (blue — use sparingly, one accent only) --- */
-  --color-accent:       #2563EB;   /* buttons, links, active states */
-  --color-accent-hover: #1D4ED8;   /* accent on hover */
-  --color-accent-light: #EFF6FF;   /* tinted bg for active items, badges */
-  --color-accent-text:  #1E40AF;   /* text on accent-light background */
-
-  /* --- Status --- */
-  --color-success:      #16A34A;   /* AVAILABLE label text */
-  --color-success-bg:   #F0FDF4;   /* AVAILABLE label background */
-  --color-danger:       #DC2626;   /* logout, delete, error text */
-  --color-danger-light: #FEF2F2;   /* danger tint backgrounds */
-  --color-neutral:      #6B7280;   /* BORROWED label text, USER badge */
-  --color-neutral-bg:   #F3F4F6;   /* BORROWED bg, category chips */
+  /* Borders */
+  --color-border:    #E5E7EB;
+  --color-border-md: #D1D5DB;
 
   /* --- Borders (shorthand) --- */
   --border-default: 1px solid var(--color-border);
   --border-medium:  1px solid var(--color-border-md);
 
-  /* --- Border Radius --- */
+   /* --- Border Radius --- */
   --radius-sm:   6px;
   --radius-md:   8px;
   --radius-lg:   12px;
   --radius-xl:   16px;
   --radius-full: 9999px;
 
-  /* --- Shadows --- */
+  /* Status */
+  --color-success:    #16A34A;
+  --color-success-bg: #DCFCE7;
+  --color-error:      #DC2626;
+  --color-error-bg:   #FEE2E2;
+  --color-neutral:    #6B7280;
+  --color-neutral-bg: #F3F4F6;
+  --color-danger:       #DC2626;   
+  --color-danger-light: #FEE2E2;  
+  --color-neutral:      #6B7280;   
+  --color-neutral-bg:   #F3F4F6; 
+
+  /* Shape */
+  --radius:          8px;
+  --radius-sm:       6px;
+  --radius-lg:       12px;
+  --radius-full:     9999px;
+
+  /* Shadows */
+  --shadow:          0 1px 3px rgba(0,0,0,0.07);
+  --shadow-md:       0 4px 10px rgba(0,0,0,0.08);
+  --shadow-dropdown: 0 10px 25px rgba(0,0,0,0.10);
   --shadow-sm:       0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-card:     0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md:       0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.05);
   --shadow-lg:       0 10px 15px rgba(0, 0, 0, 0.07), 0 4px 6px rgba(0, 0, 0, 0.05);
-  --shadow-dropdown: 0 10px 25px rgba(0, 0, 0, 0.10), 0 4px 6px rgba(0, 0, 0, 0.04);
 
-  /* --- Transitions --- */
+   /* --- Transitions --- */
   --transition-fast:   all 0.15s ease;
   --transition-normal: all 0.2s ease;
 }
 
 
 /* ============================================================
-   3. RESET & BASE STYLES
+   2. RESET & BASE STYLES
    ============================================================ */
 *,
 *::before,
@@ -134,7 +149,7 @@ h1, h2, h3, h4, h5, h6 {
 
 
 /* ============================================================
-   4. LAYOUT UTILITIES
+   3. LAYOUT UTILITIES
    ============================================================ */
 .page-wrapper {
   max-width: 1200px;
@@ -153,75 +168,65 @@ h1, h2, h3, h4, h5, h6 {
   margin: 32px 0;
 }
 
-
-/* ============================================================
-   5. NAVBAR
-   ============================================================ */
+/* ================================================================
+   4. NAVBAR  — Desktop (all screen sizes ≥ 481px)
+================================================================ */
 .navbar {
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  padding: 10px 75px 10px 50px;
+  height: 72px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 75px;
-  padding: 0 80px;
-  background-color: var(--color-bg);
-  border-bottom: var(--border-default);
   position: sticky;
   top: 0;
   z-index: 100;
+  flex-shrink: 0;
 }
 
 /* Logo */
 .navbar__logo {
   display: flex;
   align-items: center;
-  font-weight: 1000;
-  color: var(--color-text-primary);
-  transition: var(--transition-fast);
-}
-
-.navbar__logo:hover {
-  color: var(--color-text-primary);
-  opacity: 0.85;
-}
-
-.navbar__logo img {
-  height: 45px;
-  width: auto;
-}
-
-/* Right side links */
-.navbar__right {
-  display: flex;
-  align-items: center;
-  gap: 30px;
-}
-
-/* Plain nav link */
-.nav-link {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-text-secondary);
+  /* gap: 10px; */
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--color-text);
   text-decoration: none;
-  transition: var(--transition-fast);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.navbar__logo:hover { color: var(--color-text); opacity: 0.85; }
+.navbar__logo img   { height: 45px; width: auto; flex-shrink: 0; }
+
+/* Right-side links container */
+.navbar-links--desktop {
+  display: flex;              /* MUST be flex */
+  align-items: center;        /* vertical center */
+  gap: 24px;
+  flex-shrink: 0;             /* never collapse */
   white-space: nowrap;
 }
 
-.nav-link:hover {
-  color: var(--color-accent);
+/* Individual plain nav links */
+.navbar-links--desktop a {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-light);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s;
 }
+.navbar-links--desktop a:hover { color: var(--color-primary); }
 
-.nav-link.active {
-  color: var(--color-text-primary);
-}
-
-/* Sign Up / primary nav button */
 .nav-btn {
   display: inline-flex;
   align-items: center;
   padding: 8px 18px;
   font-size: 14px;
   font-weight: 600;
-  color: #ffffff;
+  color: #ffffff ;
   background-color: var(--color-accent);
   border: none;
   border-radius: var(--radius-md);
@@ -231,28 +236,23 @@ h1, h2, h3, h4, h5, h6 {
   white-space: nowrap;
 }
 
-.nav-btn:hover {
-  background-color: var(--color-accent-hover);
-  color: #ffffff;
-}
-
-/* Logout — red */
+/* Logout — red text button */
 .nav-logout {
+  color: var(--color-error) !important;
   font-size: 14px;
-  font-weight: 500;
-  color: var(--color-danger);
-  text-decoration: none;
-  cursor: pointer;
+  font-weight: 600;
   background: none;
   border: none;
-  transition: var(--transition-fast);
+  cursor: pointer;
+  text-decoration: none;
   white-space: nowrap;
+  flex-shrink: 0;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.15s;
 }
-
-.nav-logout:hover {
-  opacity: 0.75;
-  color: var(--color-danger);
-}
+.nav-logout:hover { opacity: 1; color: var(--color-error) !important; }
 
 /* Person icon button (user dropdown trigger) */
 .nav-icon-btn {
@@ -261,49 +261,44 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: center;
   width: 36px;
   height: 36px;
+  flex-shrink: 0;
   background: none;
   border: none;
-  border-radius: var(--radius-md);
-  color: var(--color-text-secondary);
+  border-radius: 50%;
+  color: var(--color-text-light);
   cursor: pointer;
-  transition: var(--transition-fast);
+  transition: background 0.15s, color 0.15s;
 }
-
 .nav-icon-btn:hover {
-  background-color: var(--color-surface);
-  color: var(--color-accent);
+  background: var(--color-surface);
+  color: var(--color-primary);
 }
 
-/* Hamburger menu button (admin dropdown trigger) */
+/* Admin ≡ Menu button */
 .nav-menu-btn {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 4px;
+  flex-shrink: 0;
   background: none;
   border: none;
   font-size: 14px;
   font-weight: 500;
-  color: var(--color-text-primary);
+  color: var(--color-text);
   cursor: pointer;
-  transition: var(--transition-fast);
+  padding: 8px 4px;
+  white-space: nowrap;
+  transition: color 0.15s;
 }
-
-.nav-menu-btn:hover {
-  color: var(--color-accent);
-}
-
-.nav-menu-btn .hamburger-icon {
-  font-size: 18px;
-  line-height: 1;
-}
+.nav-menu-btn:hover { color: var(--color-primary); }
 
 
-/* ============================================================
-   6. DROPDOWN MENUS (user icon + admin hamburger)
-   ============================================================ */
+/* ================================================================
+   5. DESKTOP DROPDOWN MENUS (admin ≡ + user icon)
+================================================================ */
 .nav-dropdown {
   position: relative;
+  flex-shrink: 0;
 }
 
 .nav-dropdown__menu {
@@ -312,17 +307,15 @@ h1, h2, h3, h4, h5, h6 {
   top: calc(100% + 10px);
   right: 0;
   min-width: 200px;
-  background-color: var(--color-bg);
-  border: var(--border-default);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-dropdown);
   overflow: hidden;
   z-index: 200;
+  white-space: nowrap;
 }
-
-.nav-dropdown__menu.open {
-  display: block;
-}
+.nav-dropdown__menu.open { display: block; }
 
 .nav-dropdown__item {
   display: flex;
@@ -331,38 +324,148 @@ h1, h2, h3, h4, h5, h6 {
   padding: 12px 16px;
   font-size: 14px;
   font-weight: 500;
-  color: var(--color-text-primary);
+  color: var(--color-text);
   text-decoration: none;
-  transition: background-color 0.12s ease;
-  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
   white-space: nowrap;
+  cursor: pointer;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
 }
-
 .nav-dropdown__item:hover {
-  background-color: var(--color-surface);
-  color: var(--color-text-primary);
+  background: var(--color-surface);
+  color: var(--color-text);
 }
-
-/* Active item in dropdown — current page highlighted blue */
 .nav-dropdown__item.active {
-  color: var(--color-accent);
-  background-color: var(--color-accent-light);
+  color: var(--color-primary);
+  background: var(--color-primary-light);
 }
 
-/* Small avatar initial inside user dropdown */
-.nav-dropdown__avatar {
-  display: inline-flex;
-  align-items: center;
+
+/* ================================================================
+   6. HAMBURGER BUTTON (mobile — guest + admin)
+   Hidden on desktop, shown only at ≤480px via media query
+================================================================ */
+.nav-hamburger {
+  display: none;            /* hidden by default — shown in mobile MQ below */
+  flex-direction: column;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background-color: var(--color-accent-light);
-  color: var(--color-accent);
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
+  align-items: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius);
   flex-shrink: 0;
+}
+.nav-hamburger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--color-text);
+  border-radius: 2px;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+  transform-origin: center;
+}
+/* Hamburger → X animation when .is-active */
+.nav-hamburger.is-active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-hamburger.is-active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.nav-hamburger.is-active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Person icon on mobile (user state — replaces hamburger) */
+.nav-icon-btn--mobile {
+  display: none;            /* hidden by default — shown in mobile MQ below */
+}
+
+
+/* ================================================================
+   7. MOBILE DROPDOWN PANEL
+   Shared by all 3 nav states on mobile.
+   Controlled by JS: adds/removes class "open".
+================================================================ */
+.mobile-menu {
+  display: none;            /* hidden by default */
+  position: fixed;
+  top: 56px;                /* sits flush under the 56px mobile navbar */
+  left: 0;
+  right: 0;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+  z-index: 99;
+  padding: 8px 0 16px;
+  max-height: calc(100vh - 56px);
+  overflow-y: auto;
+}
+/* JS adds this class to show the panel */
+.mobile-menu.open {
+  display: block !important;   /* !important overrides any conflicting rule */
+}
+
+/* Each row inside the mobile panel */
+.mobile-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 15px 20px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s, color 0.12s;
+  line-height: 1.4;
+}
+.mobile-menu__item:hover,
+.mobile-menu__item:active {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+/* Active page highlight */
+.mobile-menu__item.active {
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+.mobile-menu__item.active:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+/* Sign Up — blue accent (guest menu) */
+.mobile-menu__item--accent {
+  color: var(--color-primary) !important;
+  font-weight: 600;
+}
+.mobile-menu__item--accent:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary) !important;
+}
+
+/* Logout — red (admin + user menus) */
+.mobile-menu__item--danger {
+  color: var(--color-error) !important;
+  font-weight: 600;
+}
+.mobile-menu__item--danger:hover {
+  background: var(--color-error-bg) !important;
+  color: var(--color-error) !important;
+}
+
+/* Divider line between menu sections */
+.mobile-menu__divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 8px 0;
 }
 
 
@@ -373,8 +476,8 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 10px 22px;
+  gap: 10px;
+  padding: 13px 24px;
   font-size: 15px;
   font-weight: 600;
   border-radius: var(--radius-md);
@@ -384,6 +487,7 @@ h1, h2, h3, h4, h5, h6 {
   white-space: nowrap;
   transition: var(--transition-fast);
   line-height: 1;
+  color: #FFFFFF ;
 }
 
 .btn:active {
@@ -401,7 +505,7 @@ h1, h2, h3, h4, h5, h6 {
 /* --- Primary (blue) --- */
 .btn-primary {
   background-color: var(--color-accent);
-  color: #ffffff;
+  color: #ffffff !important;
 }
 
 .btn-primary:hover {
@@ -1571,171 +1675,71 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
-/* ============================================================
-   25. RESPONSIVE — TABLET (768px)
-   ============================================================ */
+
+/* ================================================================
+   24. RESPONSIVE — TABLET  (≤768px)
+   No mobile menu changes here — only layout adjustments
+================================================================ */
 @media (max-width: 768px) {
+  .container    { width: 95%; }
+  .navbar       { padding: 0 24px; }
+  .auth-navbar  { padding: 20px 24px; }
+  .footer       { padding: 32px 24px; }
 
-  .page-wrapper {
-    padding: 0 24px;
-  }
-
-  .navbar {
-    padding: 0 24px;
-  }
-
-  /* 3-column book grid */
-  .book-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  /* Filter pills wrap */
-  .filter-pills {
-    flex-wrap: wrap;
-  }
-
-  /* 2-col form rows stack */
-  .form-row-two-col {
-    grid-template-columns: 1fr;
-  }
-
-  /* Contact layout stacks */
-  .contact-layout {
-    flex-direction: column;
-  }
-
-  /* Admin tables scroll horizontally */
-  .table-wrap {
-    overflow-x: auto;
-  }
-
-  /* Auth card narrower */
-  .auth-card {
-    padding: 32px 28px;
-  }
-
-  /* Auth nav */
-  .auth-navbar {
-    padding: 20px 24px;
-  }
-
-  /* Footer */
-  .footer {
-    padding: 32px 24px;
-  }
-
-  /* Page header stacks */
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+  .grid                 { grid-template-columns: repeat(3, 1fr); }
+  .filter-pills         { flex-wrap: wrap; }
+  .form-row-two-col     { grid-template-columns: 1fr; }
+  .page-header          { flex-direction: column; align-items: flex-start; }
+  .table-wrapper        { overflow-x: auto; }
 }
 
 
-/* ============================================================
-   26. RESPONSIVE — MOBILE (390px)
-   ============================================================ */
-@media (max-width: 480px) {
+/* ================================================================
+   25. RESPONSIVE — MOBILE  (≤530px)
+   Desktop link row hidden. Mobile controls shown.
+   Mobile menu panel shown/hidden by JS (.open class).
+================================================================ */
+@media (max-width: 530px) {
+  .container    { width: 100%; padding: 0 16px; }
+  .navbar       { padding: 0 16px; height: 70px; }
+  .auth-navbar  { padding: 16px; }
+  .footer       { padding: 28px 16px; }
 
-  .page-wrapper {
-    padding: 0 16px;
+  /* ── Hide desktop right-side links on mobile ── */
+  .navbar-links--desktop {
+    display: none !important;
   }
 
-  .navbar {
-    padding: 0 16px;
-    height: 56px;
+  /* ── Show hamburger (guest + admin states) ── */
+  .nav-hamburger {
+    display: flex !important;
   }
 
-  /* 2-column grid */
-  .book-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+  /* ── Show person icon trigger (user state only) ── */
+  .nav-icon-btn--mobile {
+    display: flex !important;
   }
 
-  /* Filter pills scroll horizontally (no wrap) */
+  .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .filter-pills {
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     padding-bottom: 8px;
     scrollbar-width: none;
-    -ms-overflow-style: none;
   }
+  .filter-pills::-webkit-scrollbar { display: none; }
+  .filter-pill { flex-shrink: 0; }
 
-  .filter-pills::-webkit-scrollbar {
-    display: none;
-  }
+  .auth-card { margin: 0 16px; padding: 28px 20px; }
+  .auth-body { padding: 24px 0; }
 
-  .filter-pill {
-    flex-shrink: 0;
-  }
+  .btn { width: 50%; }
+  .form-input { font-size: 16px; }
 
-  /* Auth card full-width */
-  .auth-card {
-    margin: 16px;
-    padding: 28px 20px;
-    border-radius: var(--radius-lg);
-  }
+  .table-wrapper { overflow-x: auto; }
 
-  .auth-navbar {
-    padding: 16px;
-  }
-
-  .auth-footer {
-    padding: 16px;
-  }
-
-  /* Form rows all stack */
-  .form-row-two-col {
-    grid-template-columns: 1fr;
-  }
-
-  /* Book detail stacks */
-  .detail-layout {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* Profile header stacks */
-  .profile-header {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .profile-info__username {
-    justify-content: center;
-  }
-
-  .profile-stats {
-    justify-content: center;
-  }
-
-  /* Page header */
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .page-header__right {
-    width: 100%;
-  }
-
-  /* Footer */
-  .footer {
-    padding: 28px 16px;
-  }
-
-  /* Dialog */
-  .dialog {
-    margin: 16px;
-    padding: 28px 20px;
-  }
-
-  /* Toast */
-  .toast {
-    bottom: 16px;
-    right: 16px;
-    left: 16px;
-    max-width: none;
-  }
+  .toast  { left: 16px; right: 16px; max-width: none; bottom: 16px; }
+  .dialog { margin: 16px; padding: 28px 20px; }
 }
+
