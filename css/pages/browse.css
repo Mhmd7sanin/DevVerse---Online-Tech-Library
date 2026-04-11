@@ -100,3 +100,26 @@
   }
 
 }
+
+.book-card__image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.book-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.book-card__fallback {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 40px;
+  color: #e5e7eb;
+  background-color: #f3f4f6;
+}

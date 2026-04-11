@@ -31,7 +31,10 @@ function displayBooks(filteredBooks) {
               <span class="book-card__avail ${
                 book.isAvailable ? 'book-card__avail--available':( book.borrowedBy == user.id ? 'book-card__avail--owned' :'book-card__avail--borrowed' )
               }">${book.isAvailable ? 'AVAILABLED' : ( book.borrowedBy == user.id ? 'OWNED' :'BORROWED' )}</span>
-              <img src="c:\\Users\\MH\\Desktop\\ff.png">
+              <div class="book-card__image-wrapper">
+                <img class="book-img" src="">
+                <div class="book-card__fallback">❤</div>
+              </div>
             </div>
             <div class="book-card__body">
               <p class="book-card__category">${book.category.toUpperCase()}</p>
@@ -42,6 +45,18 @@ function displayBooks(filteredBooks) {
         `;
         grid.innerHTML += bookCard;
       });
+
+      document.querySelectorAll('.book-img').forEach(img => {
+      img.addEventListener('error', function () {
+        this.style.display = 'none';
+        this.parentElement.querySelector('.book-card__fallback').style.display = 'flex';
+      });
+
+      if (!img.getAttribute('src')) {
+        img.style.display = 'none';
+        img.parentElement.querySelector('.book-card__fallback').style.display = 'flex';
+      }
+    });
 
       if (filteredBooks.length === 0) {
         grid.innerHTML = `<p class="no-books">No books found.</p>`;
