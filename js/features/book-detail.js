@@ -29,6 +29,21 @@ function populatePage(book) {
   document.getElementById('book-author').textContent = book.author;
   document.getElementById('book-category').textContent = book.category;
   document.getElementById('book-description').textContent = book.description;
+
+  const img = document.getElementById('book-img');
+  const fallback = document.querySelector('.detail-fallback');
+
+  img.src = book.image || '';
+
+  img.addEventListener('error', function () {
+    img.style.display = 'none';
+    fallback.style.display = 'flex';
+  });
+
+  if (!img.src) {
+    img.style.display = 'none';
+    fallback.style.display = 'flex';
+  }
 }
 
 // Handles the borrow button click
