@@ -28,12 +28,13 @@ function displayBooks(filteredBooks) {
         const bookCard = `
           <a href="../../pages/user/book-detail.html?id=${book.id}" class="book-card">
             <div class="book-card__cover">
+              <div class="book-card__image-wrapper">
+                <img class="book-img" src="">
+              <div class="book-card__fallback">❤</div>
               <span class="book-card__avail ${
                 book.isAvailable ? 'book-card__avail--available':( book.borrowedBy == user.id ? 'book-card__avail--owned' :'book-card__avail--borrowed' )
               }">${book.isAvailable ? 'AVAILABLED' : ( book.borrowedBy == user.id ? 'OWNED' :'BORROWED' )}</span>
-              <div class="book-card__image-wrapper">
-                <img class="book-img" src="">
-                <div class="book-card__fallback">❤</div>
+
               </div>
             </div>
             <div class="book-card__body">
