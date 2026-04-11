@@ -1,0 +1,53 @@
+/* Page wrapper */
+.create-account-page {
+  padding: 40px;
+}
+
+.back-link {
+  display: block;
+  max-width: 680px;
+  margin: 0 auto 20px;
+   padding-left: 32px;
+}
+
+/* Centered card */
+.create-account-card {
+  max-width: 680px;
+  margin: 40px auto;
+  padding: 32px;
+  
+  border-radius: 12px;
+  background-color: #FFFFFF;
+}
+
+/* Title spacing */
+.create-account-card h1 {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.create-account-card p {
+  color: #6B7280;
+  margin-bottom: 24px;
+}
+
+/* Form layout */
+.create-account-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Buttons row */
+.create-account-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+/* Make cancel button same height */
+.create-account-actions .btn-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

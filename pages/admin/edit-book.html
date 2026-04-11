@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Book — DevVerse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/global.css">
+  <link rel="stylesheet" href="../../css/pages/edit-book.css">
+</head>
+<body>
+  <div id="navbar-container"></div>
+
+  <main class="main-content book-form-page">
+    <a href="dashboard.html" class="back-link">&larr; Back to Dashboard</a>
+    
+    <div class="book-form-card">
+      <h1 class="book-form-title">Edit Book</h1>
+      <p class="book-form-subtitle">Update the details of the book below.</p>
+      
+      <form id="book-form" novalidate>
+        <div class="book-form-fields">
+          <div class="form-row-two-col">
+            <div class="form-group">
+              <label for="book-name" class="form-label">BOOK NAME</label>
+              <input type="text" id="book-name" class="form-input" placeholder="e.g. The Clean Coder">
+              <span class="form-error" id="error-book-name"></span>
+            </div>
+            <div class="form-group">
+              <label for="author" class="form-label">AUTHOR</label>
+              <input type="text" id="author" class="form-input" placeholder="e.g. Robert C. Martin">
+              <span class="form-error" id="error-author"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="category" class="form-label">CATEGORY</label>
+            <select id="category" class="form-select">
+              <option value="">Select a category...</option>
+              <option value="Frontend">Frontend</option>
+              <option value="Backend">Backend</option>
+              <option value="Architecture">Architecture</option>
+              <option value="DevOps">DevOps</option>
+              <option value="Data Science">Data Science</option>
+              <option value="Security">Security</option>
+              <option value="Productivity">Productivity</option>
+              <option value="Computer Science">Computer Science</option>
+            </select>
+            <span class="form-error" id="error-category"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="description" class="form-label">DESCRIPTION</label>
+            <textarea id="description" class="form-textarea" rows="6" placeholder="Briefly describe what this book is about..."></textarea>
+            <span class="form-error" id="error-description"></span>
+          </div>
+        </div>
+
+        <div class="book-form-actions">
+          <a href="dashboard.html" class="btn btn-secondary">Cancel</a>
+          <button type="submit" id="submit-btn" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </main>
+  <script src="../../js/seed.js"></script>
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/navbar.js"></script>
+  <script src="../../js/features/edit-book.js"></script>
+</body>
+</html>
