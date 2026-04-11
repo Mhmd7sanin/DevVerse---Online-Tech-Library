@@ -40,11 +40,21 @@
   <div class="section-divider"></div>
 
     <div class="detail-borrow-section">
-          <button id="borrow-btn" class="unavailable-button">
+
+          <button id="borrow-btn" class="unavailable-button" style="display:none;" >
             Borrow this Book
           </button>
 
-          <span id="borrow-message" style="display:none;">
+          <button id="read-btn" style="display:none;">
+            Read this Book
+          </button>
+
+          <button id="return-btn" style="margin-left: 20px;"  style="display:none;">
+            Return this Book
+          </button>
+
+          <span id="borrow-message" style="display:none; ">
+
             book will be available after:
             <span id="days-left">0</span> days
           </span>

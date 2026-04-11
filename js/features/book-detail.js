@@ -1,17 +1,18 @@
-requireAuth(false)
+requireAuth(false);
 
 // Guards this page, loads book from URL param, populates the page
 function initPage(){
   const params = new URLSearchParams(window.location.search);
   const bookId = params.get('id');
-  let book = getBookById(bookId);
-  let user = getCurrentUser();
+  var book = getBookById(bookId);
+  var user = getCurrentUser();
   document.addEventListener('DOMContentLoaded', () => {
     getBookFromUrl();
     populatePage(book);
     updateBorrowedUI(book, user);
   });
 
+        
   document.getElementById('borrow-btn').addEventListener('click', () => handleBorrow(book, user));
 }
 
@@ -53,34 +54,40 @@ function handleBorrow(book, user) {
     return;
   }
 
-  const today = new Date().toISOString();
+  const today = new Date().toISOString().split("T")[0];
 
   book.isAvailable = false;
   book.borrowedBy = user.id;
   book.borrowedAt = today;
   updateBook(book);
 
-  user.borrowedBooks.push(book.id);
+  user.borrowedBooks.push({ bookId: book.id, borrowedAt: today });
   updateUser(user);
   setCurrentUser(user);
-
 
   showToast("Book borrowed! Enjoy reading.", "success");
   updateBorrowedUI(book, user);
 
 }
 
+
 //init & Updates the (badge + button state)
 function updateBorrowedUI(book, user) {
   const borrowBtn = document.getElementById('borrow-btn');
   const badge = document.getElementById('availability-badge');
   let massage = document.getElementById('borrow-message');
+  const returnBtn = document.getElementById('return-btn');
+  const readBtn = document.getElementById('read-btn');
 
   if (book.isAvailable) {
-    borrowBtn.disabled = false;
+    borrowBtn.style.display = 'inline-block';
+    returnBtn.style.display = 'none';
+    readBtn.style.display = 'none';
+
     borrowBtn.textContent = "Borrow this Book";
     borrowBtn.classList.remove("unavailable-button");
     borrowBtn.classList.add("available-button");
+
     badge.classList.remove('badge-borrowed');
     badge.classList.remove(`badge-owned`);
     badge.classList.add(`badge-available`);
@@ -89,7 +96,26 @@ function updateBorrowedUI(book, user) {
     // document.getElementById('days-left').textContent = calculateDaysLeft(book.borrowedAt);
     
   } else {
-    borrowBtn.disabled = true;
+      if (book.borrowedBy === user.id) {
+      borrowBtn.style.display = 'none';
+      readBtn.style.display = 'inline-block';
+      returnBtn.style.display = 'inline-block';
+      badge.classList.remove('badge-available');
+      badge.classList.remove(`badge-borrowed`);
+      badge.classList.add(`badge-owned`);
+      badge.textContent = 'OWNED';
+
+      returnBtn.addEventListener('click', () => handleReturn(book, user));
+
+      readBtn.addEventListener('click', () => {
+      window.location.href = `../../pages/user/read-book.html?id=${book.id}`;
+      });
+
+    } else {
+    borrowBtn.style.display = "inline-block";
+    returnBtn.style.display = 'none';
+    readBtn.style.display = 'none';
+
     borrowBtn.textContent = "Already Borrowed";
     borrowBtn.classList.remove("available-button");
     borrowBtn.classList.add("unavailable-button");;
@@ -97,19 +123,24 @@ function updateBorrowedUI(book, user) {
     badge.classList.remove(`badge-owned`);
     badge.classList.add(`badge-borrowed`);
     badge.textContent = 'BORROWED';
-
+    }
     // massage.style.visibility = 'visible';
     // document.getElementById('days-left').textContent = calculateDaysLeft(book.borrowedAt);
 
-      if (book.borrowedBy === user.id) {
-      borrowBtn.style.backgroundColor = '#16a367';
-      borrowBtn.textContent = 'Read this Book';
-      borrowBtn.disabled = false;
-
-      borrowBtn.classList.remove("unavailable-button");
-      borrowBtn.classList.add("available-button");
-      badge.style.visibility = 'hidden';
-    }
   }
-  console.log( user.id);
+}
+
+// Handles the return button click
+function handleReturn(book, user) {
+  book.isAvailable = true;
+  book.borrowedBy = null;
+  book.borrowedAt = null;
+  updateBook(book);
+
+  user.borrowedBooks = user.borrowedBooks.filter(item => item.bookId !== book.id);
+  updateUser(user);
+  setCurrentUser(user);
+
+  showToast("Book returned! Hope you enjoyed it.", "success");
+  updateBorrowedUI(book, user);
 }

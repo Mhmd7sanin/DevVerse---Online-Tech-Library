@@ -25,11 +25,12 @@ function displayBooks(filteredBooks) {
       grid.innerHTML = ''; 
 
       filteredBooks.forEach(book => {
+
         const bookCard = `
           <a href="../../pages/user/book-detail.html?id=${book.id}" class="book-card">
             <div class="book-card__cover">
               <div class="book-card__image-wrapper">
-                <img class="book-img" src="">
+                <img class="book-img" src="${book.image || ''}">
               <div class="book-card__fallback">❤</div>
               <span class="book-card__avail ${
                 book.isAvailable ? 'book-card__avail--available':( book.borrowedBy == user.id ? 'book-card__avail--owned' :'book-card__avail--borrowed' )
