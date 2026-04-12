@@ -28,21 +28,44 @@ function handleCreateAccount(e) {
   const isAdmin = document.getElementById('is-admin').checked;
 
   // 🔴 Validation
-  if (!username || !email || !password) {
-    alert('Please fill all fields');
-    return;
+  // if (!username || !email || !password) {
+  //   alert('Please fill all fields');
+  //   return;
+  // }
+
+  if (!username) {
+    showFieldError('username', 'Username is required.');
+    valid = false;
+  } else if (username.length < 3) {
+    showFieldError('username', 'Username must be at least 3 characters.');
+    valid = false;
   }
 
-  // Check if username already exists
-  const existingUser = getUserByUsername(username);
-  if (existingUser) {
-    alert('Username already exists');
+  if (!email) {
+    showFieldError('email', 'Email is required.');
+    valid = false;
+  } else if (!email.includes('@') || !email.includes('.')) {
+    showFieldError('email', 'Enter a valid email address.');
+    valid = false;
+  }
+
+  if (!password) {
+    showFieldError('password', 'Password is required.');
+    valid = false;
+  } else if (password.length < 6) {
+    showFieldError('password', 'Password must be at least 6 characters.');
+    valid = false;
+  }
+
+   /*  Username uniqueness */
+  if (getUserByUsername(username)) {
+    showFieldError('username', 'That username is already taken.');
     return;
   }
 
   // Create new user object
   const newUser = {
-    id: generateId(),
+    id: 'u_' + (getUsersNumber() + 1).toString().padStart(3, '0'),
     username: username,
     email: email,
     password: password,
@@ -55,15 +78,27 @@ function handleCreateAccount(e) {
   addUser(newUser);
 
   // Optional: success message
-  alert('Account created successfully');
+  showToast('User created successfully', 'success');
+
 
   // Redirect back to users page
   window.location.href = 'users.html';
+
+
+  
 }
 
-/**
- * Generate unique user ID
- */
-function generateId() {
-  return 'u_' + Date.now();
+
+function showFieldError(fieldId, message) {
+  const input = document.getElementById(fieldId);
+  const error = document.getElementById(fieldId + '-error');
+
+  if (input) {
+    input.classList.add('error');
+  }
+
+  if (error) {
+    error.textContent = message;
+    error.classList.add('visible');
+  }
 }
