@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Library — DevVerse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/global.css">
+  <link rel="stylesheet" href="../../css/pages/my-library.css">
+</head>
+<body>
+  <div id="navbar-container"></div>
+
+  <main class="main-content page-wrapper page-content">
+    <div class="library-header section-header">
+        <div>
+            <h1>Your Library</h1>
+            <p class="library-subtitle" id="borrow-count">You have borrowed 0 books.</p>
+        </div>
+    </div>
+    
+    <div id="empty-state" class="empty-state" style="display: none;">
+        <div class="empty-state__icon">📚</div>
+        <h3 class="empty-state__title">You haven't borrowed any books yet.</h3>
+        <p class="empty-state__msg">Explore our catalog and start reading today.</p>
+        <a href="browse.html" class="btn btn-primary" style="margin-top: 16px;">Browse the catalog</a>
+    </div>
+
+    <div class="book-grid" id="library-grid">
+        </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+        <p class="footer__copy">© 2026 DevVerse. Premium Reading Identity.</p>
+    </div>
+  </footer>
+
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/navbar.js"></script>
+  <script src="../../js/features/my-library.js"></script>
+</body>
+</html>
