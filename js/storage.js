@@ -141,3 +141,16 @@ function clearCurrentUser()      {
     localStorage.removeItem(KEYS.CURRENT_USER);
 
 }      // Removes dv_current_user (logout)
+
+// --- BASE URL ---
+const getBase = () => {
+  const { origin, pathname } = window.location;
+  const parts = pathname.split('/');
+
+  // detect if running locally or GitHub Pages
+  if (origin.includes("github.io")) {
+    return `${origin}/${parts[1]}/`;
+  }
+
+  return `${origin}/`;
+};

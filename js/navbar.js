@@ -31,7 +31,7 @@
   function logoHTML(href, label) {
     return `
       <a href="${base}index.html" class="navbar__logo">
-        <img src="${base}assets/logo.png" alt="DevVerse">
+        <img src="${base}assets/Logo.png" alt="DevVerse">
         ${label}
       </a>`;
   }
@@ -258,8 +258,20 @@
 
 function logoutUser() {
   clearCurrentUser();
-  const depth  = (window.location.pathname.match(/\//g) || []).length - 1;
-  window.location.href = base + 'pages/auth/login.html';
+
+  const path = window.location.pathname;
+
+  let prefix = '';
+
+  if (path.includes('/pages/auth/')) {
+    prefix = '../../';
+  } else if (path.includes('/pages/')) {
+    prefix = '../';
+  } else {
+    prefix = './';
+  }
+
+  window.location.href = prefix + 'auth/login.html';
 }
 
 function requireAuth(adminOnly) {
