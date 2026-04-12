@@ -1,0 +1,44 @@
+/* ============================================================
+   DevVerse — css/pages/login.css
+   Page-specific styles for login.html only.
+   ============================================================ */
+
+
+#login-form .form-group {
+  margin-bottom: 20px;
+}
+ 
+#login-form .form-group:last-of-type {
+  margin-bottom: 24px;
+}
+
+#forgot-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+@media (max-width: 530px) {
+  .btn {width: 100%;}
+}
+
+@media (max-width: 490px) {
+  #login-form .form-group {
+    margin-bottom: 30px;
+  }
+  
+  #login-form .form-group:last-of-type {
+    margin-bottom: 25px;
+  }
+
+  .auth-card { margin: 0 16px; padding: 28px 28px; }
+  .auth-body { padding: 24px 25px; }
+
+  .btn {width: 100%;}
+
+  #text-login { display: none; }
+  .auth-navbar { padding: 15px 40px 15px 30px; }
+
+}
