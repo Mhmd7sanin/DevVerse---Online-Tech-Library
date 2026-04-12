@@ -75,7 +75,7 @@ function handleSignup(e) {
   const today = new Date().toISOString().split('T')[0];
 
   const newUser = {
-    id:            'u_' + Date.now(),
+    id:            'u_' + (getUsersNumber() + 1).toString().padStart(3, '0'),
     username:      username,
     email:         email,
     password:      password,
