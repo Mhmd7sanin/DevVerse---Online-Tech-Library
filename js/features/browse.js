@@ -1,11 +1,9 @@
-requireAuth(false)
+requireAuth(false);
 
 
 function initPage() {
     const books = getBooks();
     displayBooks(books);
-
-
     document.getElementById('search-input').addEventListener('input', filterAndSearchBooks);
 
     document.querySelectorAll('.filter-pill').forEach(button => {
@@ -84,6 +82,3 @@ function filterAndSearchBooks() {
 
       displayBooks(books);
 }
-
-
-
