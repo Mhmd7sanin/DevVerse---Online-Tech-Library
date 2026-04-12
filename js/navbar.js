@@ -30,7 +30,7 @@
   function logoHTML(href, label) {
     return `
       <a href="${prefix}${href}" class="navbar__logo">
-        <img src="assets/logo.png" alt="DevVerse">
+        <img src="${prefix}assets/logo.png" alt="DevVerse">
         ${label}
       </a>`;
   }
