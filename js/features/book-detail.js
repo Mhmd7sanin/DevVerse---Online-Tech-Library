@@ -1,19 +1,24 @@
 requireAuth(false);
+let currentBook = null;
+let currentUser = null;
 
 // Guards this page, loads book from URL param, populates the page
 function initPage(){
   const params = new URLSearchParams(window.location.search);
   const bookId = params.get('id');
-  var book = getBookById(bookId);
-  var user = getCurrentUser();
+  const book = getBookById(bookId);
+  const user = getCurrentUser();
+
+  currentBook = book;
+  currentUser = user;
+
   document.addEventListener('DOMContentLoaded', () => {
-    getBookFromUrl();
     populatePage(book);
     updateBorrowedUI(book, user);
   });
 
-        
   document.getElementById('borrow-btn').addEventListener('click', () => handleBorrow(book, user));
+  document.getElementById('return-btn').addEventListener('click', openReturnDialog);
 }
 
 // Reads ?id= from URL, returns the book object (or redirects if not found)
@@ -78,11 +83,12 @@ function updateBorrowedUI(book, user) {
   let massage = document.getElementById('borrow-message');
   const returnBtn = document.getElementById('return-btn');
   const readBtn = document.getElementById('read-btn');
+  const ownedActions = document.getElementById('owned-actions');
 
   if (book.isAvailable) {
     borrowBtn.style.display = 'inline-block';
-    returnBtn.style.display = 'none';
-    readBtn.style.display = 'none';
+    ownedActions.style.display = 'none';
+    borrowBtn.disabled = false;
 
     borrowBtn.textContent = "Borrow this Book";
     borrowBtn.classList.remove("unavailable-button");
@@ -98,14 +104,12 @@ function updateBorrowedUI(book, user) {
   } else {
       if (book.borrowedBy === user.id) {
       borrowBtn.style.display = 'none';
-      readBtn.style.display = 'inline-block';
-      returnBtn.style.display = 'inline-block';
+      ownedActions.style.display = 'flex';
+      borrowBtn.disabled = true;
       badge.classList.remove('badge-available');
       badge.classList.remove(`badge-borrowed`);
       badge.classList.add(`badge-owned`);
       badge.textContent = 'OWNED';
-
-      returnBtn.addEventListener('click', () => handleReturn(book, user));
 
       readBtn.addEventListener('click', () => {
       window.location.href = `../../pages/user/read-book.html?id=${book.id}`;
@@ -113,12 +117,12 @@ function updateBorrowedUI(book, user) {
 
     } else {
     borrowBtn.style.display = "inline-block";
-    returnBtn.style.display = 'none';
-    readBtn.style.display = 'none';
+    ownedActions.style.display = 'none';
+    borrowBtn.disabled = true;
 
     borrowBtn.textContent = "Already Borrowed";
     borrowBtn.classList.remove("available-button");
-    borrowBtn.classList.add("unavailable-button");;
+    borrowBtn.classList.add("unavailable-button");
     badge.classList.remove('badge-available');
     badge.classList.remove(`badge-owned`);
     badge.classList.add(`badge-borrowed`);
@@ -131,6 +135,24 @@ function updateBorrowedUI(book, user) {
 }
 
 // Handles the return button click
+function openReturnDialog() {
+  const overlay = document.getElementById('delete-overlay');
+  if (!overlay) return;
+  overlay.classList.add('open');
+}
+
+function closeConfirmDialog() {
+  const overlay = document.getElementById('delete-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('open');
+}
+
+function confirmReturn() {
+  closeConfirmDialog();
+  if (!currentBook || !currentUser) return;
+  handleReturn(currentBook, currentUser);
+}
+
 function handleReturn(book, user) {
   book.isAvailable = true;
   book.borrowedBy = null;
@@ -143,4 +165,27 @@ function handleReturn(book, user) {
 
   showToast("Book returned! Hope you enjoyed it.", "success");
   updateBorrowedUI(book, user);
+}
+
+function showToast(message, type = 'default') {
+  let toast = document.getElementById('toast');
+  let shouldRemove = false;
+
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    document.body.appendChild(toast);
+    shouldRemove = true;
+  }
+
+  toast.textContent = message;
+  toast.className = 'toast toast--' + (type || 'default');
+  requestAnimationFrame(function () { toast.classList.add('show'); });
+
+  setTimeout(function () {
+    toast.classList.remove('show');
+    if (shouldRemove) {
+      setTimeout(function () { toast.remove(); }, 300);
+    }
+  }, 3000);
 }

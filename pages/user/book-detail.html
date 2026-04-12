@@ -11,8 +11,8 @@
 <body>
 
 <div id="navbar-container"></div>
-<div class="page-wrapper page-content">
-  <div class="detail-layout">
+<div class="page-wrapper page-content" style="padding-top:5%" >
+  <div class="detail-layout" style="padding-top:0px ;">
 
   <!-- LEFT -->
 
@@ -28,6 +28,7 @@
 
   <!-- RIGHT -->
   <div class="detail-info">
+    <a href="browse.html" class="back-link" style=" margin-left: -20px; margin-bottom: 20px;" >← Back to Catalog</a>
     <p id="book-category" class="detail-category"></p>
     <h1 id="book-title" class="detail-title"></h1>
     <p id="book-author" class="detail-author"></p>
@@ -40,30 +41,43 @@
   <div class="section-divider"></div>
 
     <div class="detail-borrow-section">
+      <button id="borrow-btn" class="unavailable-button" style="display:none;">
+        Borrow this Book
+      </button>
 
-          <button id="borrow-btn" class="unavailable-button" style="display:none;" >
-            Borrow this Book
-          </button>
+      <div id="owned-actions" style="display:none; gap: 12px; display: flex;">
+        <button id="read-btn">
+          Read this Book
+        </button>
 
-          <button id="read-btn" style="display:none;">
-            Read this Book
-          </button>
+        <button id="return-btn">
+          Return this Book
+        </button>
+      </div>
 
-          <button id="return-btn" style="margin-left: 20px;"  style="display:none;">
-            Return this Book
-          </button>
-
-          <span id="borrow-message" style="display:none; ">
-
-            book will be available after:
-            <span id="days-left">0</span> days
-          </span>
-
+      <span id="borrow-message" style="display:none;">
+        book will be available after:
+        <span id="days-left">0</span> days
+      </span>
     </div>
 
   </div>
 </div>
 </div>
+
+<!-- Confirm return Dialog -->
+<div id="delete-overlay" class="dialog-overlay">
+  <div class="dialog">
+    <h3 class="dialog__title">Confirm Return</h3>
+    <p class="dialog__body">Are you sure you want to return this book?</p>
+
+    <div class="dialog__actions">
+      <button class="btn btn-secondary" onclick="closeConfirmDialog()">Cancel</button>
+      <button class="btn btn-danger" id="confirm-delete-btn" onclick="confirmReturn()">Return</button>
+    </div>
+  </div>
+</div>
+
   <script src="../../js/storage.js"></script>
   <script src="../../js/seed.js"></script>
   <script src="../../js/navbar.js"></script>
