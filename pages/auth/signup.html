@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up — DevVerse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/global.css">
+  <link rel="stylesheet" href="../../css/pages/signup.css">
+</head>
+<body class="auth-page">
+
+  <!-- Minimal navbar -->
+  <nav class="auth-navbar">
+    <a href="../../pages/index.html" class="auth-navbar__logo">
+      <img src="../../assets/logo.png" alt="DevVerse">
+      DevVerse
+    </a>
+    <span class="auth-navbar__link">
+      Already have an account? <a href="../../pages/auth/login.html">Login</a>
+    </span>
+  </nav>
+
+  <!-- Centered card -->
+  <div class="auth-body">
+    <div class="auth-card">
+
+      <h1 class="auth-card__title">Create your account</h1>
+      <p class="auth-card__subtitle">Join the DevVerse community to start reading.</p>
+
+      <!-- Top-level error alert -->
+      <div class="alert alert-error" id="form-alert" style="display:none;"></div>
+
+      <form id="signup-form" novalidate>
+
+        <!-- USERNAME -->
+        <div class="form-group">
+          <label class="form-label" for="username">Username</label>
+          <input
+            class="form-input"
+            type="text"
+            id="username"
+            name="username"
+            placeholder="Enter your username"
+            autocomplete="username"
+          >
+          <span class="form-error" id="username-error"></span>
+        </div>
+
+        <!-- EMAIL -->
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input
+            class="form-input"
+            type="email"
+            id="email"
+            name="email"
+            placeholder="you@example.com"
+            autocomplete="email"
+          >
+          <span class="form-error" id="email-error"></span>
+        </div>
+
+        <!-- PASSWORD + CONFIRM — side by side -->
+        <div class="form-row-two-col">
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input
+              class="form-input"
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Min. 6 characters"
+              autocomplete="new-password"
+            >
+            <span class="form-error" id="password-error"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="confirm">Confirm</label>
+            <input
+              class="form-input"
+              type="password"
+              id="confirm"
+              name="confirm"
+              placeholder="Repeat password"
+              autocomplete="new-password"
+            >
+            <span class="form-error" id="confirm-error"></span>
+          </div>
+        </div>
+
+        <!-- NO admin checkbox — admins created by existing admins only -->
+
+        <button type="submit" class="btn btn-primary btn-full" id="submit-btn">
+          Create Account
+        </button>
+
+      </form>
+
+      <div class="auth-card__footer">
+        Already have an account? <a href="../../pages/auth/login.html">Login</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="auth-footer">
+    © 2026 DevVerse Library. Built for modern readers.
+  </footer>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/navbar.js"></script>
+  <script src="../../js/seed.js"></script>
+  <script src="../../js/features/auth.js"></script>
+
+</body>
+</html>

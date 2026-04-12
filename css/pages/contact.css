@@ -1,0 +1,154 @@
+/* ============================================================
+   contact.css — Page-specific styles for pages/contact.html
+   global.css handles: navbar, form-group, form-input,
+   form-select, form-textarea, btn, footer, section-label.
+   Only write what global.css does NOT already cover.
+   ============================================================ */
+
+
+/* ── Two-column layout ── */
+.contact-layout {
+  display: grid;
+  grid-template-columns: 40% 1fr;
+  gap: 64px;
+  align-items: start;
+  padding-top: 56px;
+  padding-bottom: 80px;
+}
+
+
+/* ── Left column ── */
+.contact-left {
+  padding-top: 8px;
+}
+
+.contact-left__headline {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+  margin-bottom: 20px;
+  margin-top: 12px;
+}
+
+.contact-left__desc {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  margin-bottom: 40px;
+  max-width: 380px;
+}
+
+
+/* ── Info items (email / visit) ── */
+.contact-info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.contact-info-item__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  background-color: var(--color-surface);
+  border: var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+}
+
+.contact-info-item__text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.contact-info-item__text strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.contact-info-item__text span {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.contact-info-item__link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: var(--transition-fast);
+}
+
+.contact-info-item__link:hover {
+  text-decoration: underline;
+}
+
+.contact-info-item__address {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+
+/* ── Right column: form card ── */
+.contact-form-card {
+  background-color: var(--color-bg);
+  border: var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: 36px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Make every direct child of the form spaced out */
+.contact-form-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+
+/* ── Tablet (≤768px) — stack to 1 column ── */
+@media (max-width: 768px) {
+  .contact-layout {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding-top: 40px;
+  }
+
+  .contact-left__headline {
+    font-size: 32px;
+  }
+
+  .contact-left__desc {
+    max-width: 100%;
+  }
+}
+
+
+/* ── Mobile (≤530px) ── */
+@media (max-width: 530px) {
+  .contact-layout {
+    padding-top: 28px;
+    padding-bottom: 48px;
+    gap: 32px;
+  }
+
+  .contact-left__headline {
+    font-size: 26px;
+  }
+
+  .contact-form-card {
+    padding: 24px 20px;
+  }
+}
