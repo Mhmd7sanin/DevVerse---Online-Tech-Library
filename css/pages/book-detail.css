@@ -1,0 +1,366 @@
+/* ============================================================
+   DevVerse — css/pages/book-detail.css
+   global.css covers: .back-link, .section-divider, .badge,
+   .dialog-overlay, .dialog, .btn, .btn-secondary, .btn-danger
+   ============================================================ */
+
+
+/* ── Page layout overrides ──────────────────────────────── */
+.page-wrapper {
+  max-width: 100%;
+  padding: 0 80px;
+}
+
+.page-content {
+  padding-top: 80px;
+  padding-bottom: 90px;
+}
+
+
+/* ── Two-column layout ──────────────────────────────────── */
+.detail-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 90px;
+  max-width: 1460px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+
+/* ── LEFT — cover card ──────────────────────────────────── */
+.detail-cover-card {
+  position: sticky;
+  top: 120px;
+  height: 620px;
+  width: 100%;
+  background-color: var(--color-bg);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Availability badge — pinned top-left of cover card */
+#availability-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+}
+
+/* Book image */
+.detail-image-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.detail-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+}
+
+/* Fallback placeholder when no image */
+.detail-fallback {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 60px;
+  color: var(--color-border);
+}
+
+
+/* ── RIGHT — book info ──────────────────────────────────── */
+.detail-info {
+  padding-top: 2%;
+}
+
+.detail-category {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-accent);
+  margin-bottom: 20px;
+}
+
+.detail-title {
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--color-text-primary);
+  margin-bottom: 16px;
+}
+
+.detail-author {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 36px;
+}
+
+.detail-about-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--color-text-secondary);
+  margin-bottom: 18px;
+}
+
+.detail-description {
+  font-size: 17px;
+  line-height: 1.9;
+  color: var(--color-text-secondary);
+  max-width: 700px;
+}
+
+
+/* ── Borrow / action section ────────────────────────────── */
+.detail-borrow-section {
+  margin-top: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Owned actions row (Read + Return side by side) */
+#owned-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  width: 100%;
+}
+
+
+/* ── Shared button sizing for all action buttons ────────── */
+#borrow-btn,
+#return-btn,
+#read-btn {
+  min-width: 320px;
+  width: min(100%, 340px);
+  padding: 16px 32px;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+/* Borrow — blue (available state) */
+#borrow-btn.available-button {
+  background-color: var(--color-accent);
+  color: #ffffff;
+}
+
+#borrow-btn.available-button:hover {
+  background-color: var(--color-accent-hover);
+}
+
+/* Borrow — gray (unavailable / disabled state) */
+#borrow-btn.unavailable-button,
+#borrow-btn:disabled {
+  background-color: var(--color-neutral);
+  color: #ffffff;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+/* Return — red */
+#return-btn {
+  background-color: var(--color-danger);
+  color: #ffffff;
+}
+
+#return-btn:hover {
+  background-color: #c10808;
+}
+
+/* Read — green */
+#read-btn {
+  background-color: var(--color-success);
+  color: #ffffff;
+}
+
+#read-btn:hover {
+  background-color: #059138;
+}
+
+
+/* ── Owned badge ────────────────────────────────────────── */
+.badge-owned {
+  background-color: rgba(179, 181, 19, 0.11);
+  color: #a3a701;
+}
+
+
+/* ── Danger button override (for dialog) ───────────────── */
+.btn-danger {
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
+  border: 1px solid transparent;
+}
+
+.btn-danger:hover {
+  background-color: rgba(220, 38, 38, 0.15);
+  color: var(--color-danger);
+}
+
+
+/* ============================================================
+   RESPONSIVE — TABLET (768px)
+   Cover stacks above info
+   ============================================================ */
+@media (max-width: 768px) {
+  .page-wrapper {
+    padding: 0 32px;
+  }
+
+  .page-content {
+    padding-top: 32px;
+    padding-bottom: 48px;
+  }
+
+  .detail-layout {
+    grid-template-columns: 1fr;
+    gap: 45px;
+  }
+
+  /* Cover is no longer sticky on tablet */
+  .detail-cover-card {
+    position: static;
+    height: 420px;
+    max-width: 480px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .detail-title {
+    font-size: 38px;
+  }
+
+  .detail-borrow-section {
+    align-items: stretch;
+  }
+
+  .detail-info {
+    padding-top: 0;
+  }
+
+  .detail-author {
+    font-size: 20px;
+    margin-bottom: 28px;
+  }
+
+
+  .detail-category {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+
+  .detail-title {
+    font-size: 40px;
+    margin-bottom: 10px;
+  }
+
+  .detail-author {
+    font-size: 20px;
+    margin-bottom: 24px;
+  }
+
+  .detail-description {
+    font-size: 20px;
+    line-height: 1.75;
+  }
+
+
+ #owned-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+  #borrow-btn {
+    width: 100%;
+    min-width: unset;}
+
+  #return-btn,
+  #read-btn {
+    width: 50%;
+    /* min-width: unset; */
+  }
+}
+
+
+/* ============================================================
+   RESPONSIVE — MOBILE (480px)
+   Full-width cover, smaller title, stacked buttons
+   ============================================================ */
+@media (max-width: 500px) {
+  .page-wrapper {
+    padding: 0 16px;
+  }
+
+  .page-content {
+    padding-top: 32px;
+    padding-bottom: 48px;
+  }
+
+  .detail-layout {
+    gap: 28px;
+  }
+
+  .detail-cover-card {
+    height: 300px;
+    max-width: 100%;
+    border-radius: var(--radius-lg);
+    padding: 16px;
+  }
+
+  .detail-info {
+    padding-top: 0;
+  }
+
+  .detail-category {
+    font-size: 11px;
+    margin-bottom: 12px;
+  }
+
+  .detail-title {
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+
+  .detail-author {
+    font-size: 15px;
+    margin-bottom: 24px;
+  }
+
+  .detail-description {
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  .detail-borrow-section {
+    margin-top: 32px;
+    gap: 12px;
+  }
+
+  #owned-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  #borrow-btn,
+  #return-btn,#read-btn {
+    width: 80%;
+    min-width: unset;
+    align-items: center;
+  } 
+}
