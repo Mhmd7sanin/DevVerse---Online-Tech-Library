@@ -17,6 +17,7 @@
     return path.includes(keyword) ? 'active' : '';
   }
 
+  const base = getBase();
 
   function resolvePrefix() {
     const depth = (path.match(/\//g) || []).length - 1;
@@ -29,8 +30,8 @@
   /* ── Logo HTML ───────────────────────────────────────── */
   function logoHTML(href, label) {
     return `
-      <a href="${prefix}${href}" class="navbar__logo">
-        <img src="${prefix}assets/logo.png" alt="DevVerse">
+      <a href="${base}index.html" class="navbar__logo">
+        <img src="${base}assets/logo.png" alt="DevVerse">
         ${label}
       </a>`;
   }
@@ -41,14 +42,14 @@
   if (!user) {
     container.innerHTML = `
       <nav class="navbar">
-        ${logoHTML('index.html', 'DevVerse')}
+        ${logoHTML(`${base}index.html`, 'DevVerse')}
 
         <!-- Desktop links (hidden on mobile via CSS) -->
         <div class="navbar-links--desktop">
-          <a href="${prefix}index.html"       class="nav-link ${active('index')}">Home</a>
-          <a href="${prefix}pages/contact.html"     class="nav-link ${active('contact')}">Contact</a>
-          <a href="${prefix}pages/auth/login.html"  class="nav-link ${active('login')}">Login</a>
-          <a href="${prefix}pages/auth/signup.html" class="btn btn-primary btn-nav">Sign Up</a>
+          <a href="${base}index.html"       class="nav-link ${active('index')}">Home</a>
+          <a href="${base}pages/contact.html"     class="nav-link ${active('contact')}">Contact</a>
+          <a href="${base}pages/auth/login.html"  class="nav-link ${active('login')}">Login</a>
+          <a href="${base}pages/auth/signup.html" class="btn btn-primary btn-nav">Sign Up</a>
         </div>
 
         <!-- Mobile trigger: hamburger (shown on mobile via CSS) -->
@@ -59,10 +60,10 @@
 
       <!-- Mobile panel (all 3 guest links + Sign Up) -->
       <div class="mobile-menu" id="mobile-menu">
-        <a href="${prefix}index.html"       class="mobile-menu__item ${active('index')}">Home</a>
-        <a href="${prefix}pages/contact.html"     class="mobile-menu__item ${active('contact')}">Contact</a>
-        <a href="${prefix}pages/auth/login.html"  class="mobile-menu__item ${active('login')}">Login</a>
-        <a href="${prefix}pages/auth/signup.html" class="mobile-menu__item mobile-menu__item--accent">Sign Up</a>
+        <a href="${base}index.html"       class="mobile-menu__item ${active('index')}">Home</a>
+        <a href="${base}pages/contact.html"     class="mobile-menu__item ${active('contact')}">Contact</a>
+        <a href="${base}pages/auth/login.html"  class="mobile-menu__item ${active('login')}">Login</a>
+        <a href="${base}pages/auth/signup.html" class="mobile-menu__item mobile-menu__item--accent">Sign Up</a>
       </div>`;
 
 
@@ -70,7 +71,7 @@
   } else if (user.isAdmin) {
     container.innerHTML = `
       <nav class="navbar">
-        ${logoHTML('pages/admin/dashboard.html', 'DevVerse Admin')}
+        ${logoHTML(`${base}pages/admin/dashboard.html`, 'DevVerse Admin')}
 
         <!-- Desktop: dropdown menu + logout -->
         <div class="navbar-links--desktop">
@@ -84,10 +85,10 @@
               Menu
             </button>
             <div class="nav-dropdown__menu" id="admin-dropdown" role="menu">
-              <a href="${prefix}pages/admin/dashboard.html"      class="nav-dropdown__item ${active('dashboard')}"      role="menuitem">Manage Books</a>
-              <a href="${prefix}pages/admin/add-book.html"       class="nav-dropdown__item ${active('add-book')}"       role="menuitem">Add Book</a>
-              <a href="${prefix}pages/admin/users.html"          class="nav-dropdown__item ${active('users')}"          role="menuitem">Manage Users</a>
-              <a href="${prefix}pages/admin/create-account.html" class="nav-dropdown__item ${active('create-account')}" role="menuitem">Add Account</a>
+              <a href="${base}pages/admin/dashboard.html"      class="nav-dropdown__item ${active('dashboard')}"      role="menuitem">Manage Books</a>
+              <a href="${base}pages/admin/add-book.html"       class="nav-dropdown__item ${active('add-book')}"       role="menuitem">Add Book</a>
+              <a href="${base}pages/admin/users.html"          class="nav-dropdown__item ${active('users')}"          role="menuitem">Manage Users</a>
+              <a href="${base}pages/admin/create-account.html" class="nav-dropdown__item ${active('create-account')}" role="menuitem">Add Account</a>
             </div>
           </div>
           <button class="nav-logout" onclick="logoutUser()">Logout</button>
@@ -101,10 +102,10 @@
 
       <!-- Mobile panel (same 4 items + divider + Logout) -->
       <div class="mobile-menu" id="mobile-menu">
-        <a href="${prefix}pages/admin/dashboard.html"      class="mobile-menu__item ${active('dashboard')}">Manage Books</a>
-        <a href="${prefix}pages/admin/add-book.html"       class="mobile-menu__item ${active('add-book')}">Add Book</a>
-        <a href="${prefix}pages/admin/users.html"          class="mobile-menu__item ${active('users')}">Manage Users</a>
-        <a href="${prefix}pages/admin/create-account.html" class="mobile-menu__item ${active('create-account')}">Add Account</a>
+        <a href="${base}pages/admin/dashboard.html"      class="mobile-menu__item ${active('dashboard')}">Manage Books</a>
+        <a href="${base}pages/admin/add-book.html"       class="mobile-menu__item ${active('add-book')}">Add Book</a>
+        <a href="${base}pages/admin/users.html"          class="mobile-menu__item ${active('users')}">Manage Users</a>
+        <a href="${base}pages/admin/create-account.html" class="mobile-menu__item ${active('create-account')}">Add Account</a>
         <div class="mobile-menu__divider"></div>
         <button class="mobile-menu__item mobile-menu__item--danger" onclick="logoutUser()">Logout</button>
       </div>`;
@@ -116,7 +117,7 @@
 
     container.innerHTML = `
       <nav class="navbar">
-        ${logoHTML('pages/user/browse.html', 'DevVerse')}
+        ${logoHTML(`${base}pages/user/browse.html`, 'DevVerse')}
 
         <!-- Desktop: person dropdown + contact + logout -->
         <div class="navbar-links--desktop">
@@ -129,15 +130,15 @@
               </svg>
             </button>
             <div class="nav-dropdown__menu" id="user-dropdown" role="menu">
-              <a href="${prefix}pages/user/profile.html"    class="nav-dropdown__item ${active('profile')}" role="menuitem">
+              <a href="${base}pages/user/profile.html"    class="nav-dropdown__item ${active('profile')}" role="menuitem">
                 <span class="user-avatar" style="width:24px;height:24px;font-size:10px;">${initials}</span>
                 My Profile
               </a>
-              <a href="${prefix}pages/user/browse.html"     class="nav-dropdown__item ${active('browse')}"     role="menuitem">Browse Books</a>
-              <a href="${prefix}pages/user/my-library.html" class="nav-dropdown__item ${active('my-library')}" role="menuitem">My Books</a>
+              <a href="${base}pages/user/browse.html"     class="nav-dropdown__item ${active('browse')}"     role="menuitem">Browse Books</a>
+              <a href="${base}pages/user/my-library.html" class="nav-dropdown__item ${active('my-library')}" role="menuitem">My Books</a>
             </div>
           </div>
-          <a href="${prefix}pages/contact.html" class="nav-link ${active('contact')}">Contact</a>
+          <a href="${base}pages/contact.html" class="nav-link ${active('contact')}">Contact</a>
           <button class="nav-logout" onclick="logoutUser()">Logout</button>
         </div>
 
@@ -154,14 +155,14 @@
 
       <!-- Mobile panel (profile + browse + my books + contact + logout) -->
       <div class="mobile-menu" id="mobile-menu">
-        <a href="${prefix}pages/user/profile.html"    class="mobile-menu__item ${active('profile')}">
+        <a href="${base}pages/user/profile.html"    class="mobile-menu__item ${active('profile')}">
           <span class="user-avatar" style="width:28px;height:28px;font-size:11px;">${initials}</span>
           My Profile
         </a>
-        <a href="${prefix}pages/user/browse.html"     class="mobile-menu__item ${active('browse')}">Browse Books</a>
-        <a href="${prefix}pages/user/my-library.html" class="mobile-menu__item ${active('my-library')}">My Books</a>
+        <a href="${base}pages/user/browse.html"     class="mobile-menu__item ${active('browse')}">Browse Books</a>
+        <a href="${base}pages/user/my-library.html" class="mobile-menu__item ${active('my-library')}">My Books</a>
         <div class="mobile-menu__divider"></div>
-        <a href="${prefix}pages/contact.html"         class="mobile-menu__item ${active('contact')}">Contact</a>
+        <a href="${base}pages/contact.html"         class="mobile-menu__item ${active('contact')}">Contact</a>
         <button class="mobile-menu__item mobile-menu__item--danger" onclick="logoutUser()">Logout</button>
       </div>`;
   }
@@ -258,25 +259,23 @@
 function logoutUser() {
   clearCurrentUser();
   const depth  = (window.location.pathname.match(/\//g) || []).length - 1;
-  const prefix = depth >= 2 ? '../../' : depth === 1 ? '../' : './';
-  window.location.href = prefix + 'pages/auth/login.html';
+  window.location.href = base + 'pages/auth/login.html';
 }
 
 function requireAuth(adminOnly) {
   const user   = getCurrentUser();
   const depth  = (window.location.pathname.match(/\//g) || []).length - 1;
-  const prefix = depth >= 2 ? '../../' : depth === 1 ? '../' : './';
 
   if (!user) {
-    window.location.href = prefix + 'pages/auth/login.html';
+    window.location.href = base + 'pages/auth/login.html';
     return null;
   }
   if (adminOnly && !user.isAdmin) {
-    window.location.href = prefix + 'pages/user/browse.html';
+    window.location.href = base + 'pages/user/browse.html';
     return null;
   }
   if (!adminOnly && user.isAdmin) {
-    window.location.href = prefix + 'pages/admin/dashboard.html';
+    window.location.href = base + 'pages/admin/dashboard.html';
     return null;
   }
   return user;
