@@ -37,7 +37,7 @@ function buildHomeCard(book) {
       </div>
       <div class="book-card__body">
         <p class="book-card__category">${escapeHTML(book.category || '')}</p>
-        <p class="book-card__title">${escapeHTML(book.title)}</p>
+        <h3 class="book-card__title">${book.name}</h3>
         <p class="book-card__author">${escapeHTML(book.author || '')}</p>
       </div>
     </a>
@@ -49,7 +49,7 @@ function renderFeaturedBooks() {
   const grid = document.getElementById('featured-grid');
   if (!grid) return;
 
-  const books = getBooks().slice(0, 10);
+  const books = getBooks().slice(0, 12);
 
   if (books.length === 0) {
     grid.innerHTML = `
