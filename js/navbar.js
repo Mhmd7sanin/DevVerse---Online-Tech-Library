@@ -30,7 +30,7 @@
   function logoHTML(href, label) {
     return `
       <a href="${prefix}${href}" class="navbar__logo">
-        <img src="${prefix}assets/logo.png" alt="DevVerse">
+        <img src="assets/logo.png" alt="DevVerse">
         ${label}
       </a>`;
   }
@@ -41,14 +41,14 @@
   if (!user) {
     container.innerHTML = `
       <nav class="navbar">
-        ${logoHTML('/index.html', 'DevVerse')}
+        ${logoHTML('index.html', 'DevVerse')}
 
         <!-- Desktop links (hidden on mobile via CSS) -->
         <div class="navbar-links--desktop">
-          <a href="${prefix}/index.html"       class="nav-link ${active('index')}">Home</a>
-          <a href="${prefix}/pages/contact.html"     class="nav-link ${active('contact')}">Contact</a>
-          <a href="${prefix}/pages/auth/login.html"  class="nav-link ${active('login')}">Login</a>
-          <a href="${prefix}/pages/auth/signup.html" class="btn btn-primary btn-nav">Sign Up</a>
+          <a href="${prefix}index.html"       class="nav-link ${active('index')}">Home</a>
+          <a href="${prefix}pages/contact.html"     class="nav-link ${active('contact')}">Contact</a>
+          <a href="${prefix}pages/auth/login.html"  class="nav-link ${active('login')}">Login</a>
+          <a href="${prefix}pages/auth/signup.html" class="btn btn-primary btn-nav">Sign Up</a>
         </div>
 
         <!-- Mobile trigger: hamburger (shown on mobile via CSS) -->
@@ -59,10 +59,10 @@
 
       <!-- Mobile panel (all 3 guest links + Sign Up) -->
       <div class="mobile-menu" id="mobile-menu">
-        <a href="${prefix}/index.html"       class="mobile-menu__item ${active('index')}">Home</a>
-        <a href="${prefix}/pages/contact.html"     class="mobile-menu__item ${active('contact')}">Contact</a>
-        <a href="${prefix}/pages/auth/login.html"  class="mobile-menu__item ${active('login')}">Login</a>
-        <a href="${prefix}/pages/auth/signup.html" class="mobile-menu__item mobile-menu__item--accent">Sign Up</a>
+        <a href="${prefix}index.html"       class="mobile-menu__item ${active('index')}">Home</a>
+        <a href="${prefix}pages/contact.html"     class="mobile-menu__item ${active('contact')}">Contact</a>
+        <a href="${prefix}pages/auth/login.html"  class="mobile-menu__item ${active('login')}">Login</a>
+        <a href="${prefix}pages/auth/signup.html" class="mobile-menu__item mobile-menu__item--accent">Sign Up</a>
       </div>`;
 
 

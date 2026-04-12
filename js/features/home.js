@@ -10,9 +10,9 @@ function redirectIfLoggedIn() {
   const user = getCurrentUser();
   if (!user) return;
   if (user.isAdmin) {
-    window.location.replace('/pages/admin/dashboard.html');
+    window.location.replace('pages/admin/dashboard.html');
   } else {
-    window.location.replace('/pages/user/browse.html');
+    window.location.replace('pages/user/browse.html');
   }
 }
 
@@ -31,7 +31,7 @@ function buildHomeCard(book) {
        </span>`;
 
   return `
-    <a href="/pages/auth/login.html" class="book-card" title="${escapeHTML(book.title)}">
+    <a href="pages/auth/login.html" class="book-card" title="${escapeHTML(book.title)}">
       <div class="book-card__cover">
         ${coverHTML}
       </div>
