@@ -2,36 +2,41 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Browse Books</title>
-
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../css/global.css">
   <link rel="stylesheet" href="../../css/pages/browse.css">
 </head>
 
 <body>
-
-  <!-- NAVBAR (already handled) -->
+ 
   <div id="navbar-container"></div>
-
-  <!-- PAGE HEADER -->
-  <div class="browse-header browse-page" >
-    <h1>Discover New Reads</h1>
-  </div>
-
-
-   <!-- SEARCH & FILTERS -->
-  <div class="browse-controls browse-page">
-
-      <!-- SEARCH -->
-      <div class="search-bar">
-        <input 
-          type="text" 
-          id="search-input"
-          class="search-bar__input"
-          placeholder="Search catalog..."
-        >
-      </div>
-
+ 
+  <main class="page-wrapper page-content">
+ 
+    <!-- Page heading -->
+    <div class="browse-header">
+      <h1 class="browse-title">Discover New Reads</h1>
+    </div>
+ 
+    <!-- Search bar -->
+    <div class="search-bar browse-search">
+      <span class="search-bar__icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+      </span>
+      <input
+        class="search-bar__input"
+        type="text"
+        id="search-input"
+        placeholder="Search catalog..."
+        autocomplete="off"
+      >
+    </div>
 
       <!-- FILTERS -->
       <div class="filter-pills" id="filter-pills">
@@ -50,7 +55,7 @@
 
 
   <!-- BOOK GRID -->
-  <div id="books-grid" class="book-grid browse-page">
+    <div class="book-grid" id="books-grid"></div>
     <!-- Book cards will be dynamically inserted here -->
   </div>
 

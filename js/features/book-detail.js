@@ -1,150 +1,157 @@
+/* ============================================================
+   DevVerse — js/features/book-detail.js
+   Page: pages/user/book-detail.html
+   Depends on: storage.js, navbar.js (loaded before this file)
+   ============================================================ */
+
 requireAuth(false);
+
 let currentBook = null;
 let currentUser = null;
 
-// Guards this page, loads book from URL param, populates the page
-function initPage(){
+
+/* ============================================================
+   INIT — called from HTML after scripts load
+   ============================================================ */
+function initPage() {
   const params = new URLSearchParams(window.location.search);
-  const bookId = params.get('id');
+  const bookId  = params.get('id');
+
+  if (!bookId) {
+    window.location.href = '../../pages/user/browse.html';
+    return;
+  }
+
   const book = getBookById(bookId);
-  const user = getCurrentUser();
+  const user  = getCurrentUser();
+
+  if (!book) {
+    window.location.href = '../../pages/user/browse.html';
+    return;
+  }
 
   currentBook = book;
   currentUser = user;
 
-  document.addEventListener('DOMContentLoaded', () => {
-    populatePage(book);
-    updateBorrowedUI(book, user);
+  populatePage(book);
+  updateBorrowedUI(book, user);
+
+  document.getElementById('borrow-btn').addEventListener('click', function () {
+    handleBorrow(currentBook, currentUser);
   });
 
-  document.getElementById('borrow-btn').addEventListener('click', () => handleBorrow(book, user));
   document.getElementById('return-btn').addEventListener('click', openReturnDialog);
+  document.getElementById('read-btn').addEventListener('click', openReadDialog);
 }
 
-// Reads ?id= from URL, returns the book object (or redirects if not found)
-function getBookFromUrl(){
-  const params = new URLSearchParams(window.location.search);
-  const bookId = params.get('id');
-  let book = getBookById(bookId);
-  return book;
-}
 
-// Fills all the page elements with book data
+/* ============================================================
+   POPULATE PAGE — fill all text/image fields
+   ============================================================ */
 function populatePage(book) {
-  document.getElementById('book-title').textContent = book.name;
-  document.getElementById('book-author').textContent = book.author;
-  document.getElementById('book-category').textContent = book.category;
+  document.title = book.name + ' — DevVerse';
+
+  document.getElementById('book-title').textContent       = book.name;
+  document.getElementById('book-author').textContent      = book.author;
+  document.getElementById('book-category').textContent    = book.category;
   document.getElementById('book-description').textContent = book.description;
 
-  const img = document.getElementById('book-img');
+  const img      = document.getElementById('book-img');
   const fallback = document.querySelector('.detail-fallback');
 
   img.src = book.image || '';
 
   img.addEventListener('error', function () {
-    img.style.display = 'none';
+    img.style.display     = 'none';
     fallback.style.display = 'flex';
   });
 
-  if (!img.src) {
-    img.style.display = 'none';
+  if (!book.image) {
+    img.style.display     = 'none';
     fallback.style.display = 'flex';
   }
 }
 
-// Handles the borrow button click
+
+/* ============================================================
+   BORROW
+   ============================================================ */
 function handleBorrow(book, user) {
-  if(user == null) {
-    window.location.href = "../../pages/auth/login.html";
+  if (!user) {
+    window.location.href = '../../pages/auth/login.html';
     return;
   }
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split('T')[0];
 
   book.isAvailable = false;
-  book.borrowedBy = user.id;
-  book.borrowedAt = today;
+  book.borrowedBy  = user.id;
+  book.borrowedAt  = today;
   updateBook(book);
 
   user.borrowedBooks.push({ bookId: book.id, borrowedAt: today });
   updateUser(user);
   setCurrentUser(user);
 
-  showToast("Book borrowed! Enjoy reading.", "success");
+  showToast('Book borrowed! Enjoy reading.', 'success');
   updateBorrowedUI(book, user);
-
 }
 
 
-//init & Updates the (badge + button state)
+/* ============================================================
+   UI STATE — update badge + buttons based on book state
+   ============================================================ */
 function updateBorrowedUI(book, user) {
-  const borrowBtn = document.getElementById('borrow-btn');
-  const badge = document.getElementById('availability-badge');
-  let massage = document.getElementById('borrow-message');
-  const returnBtn = document.getElementById('return-btn');
-  const readBtn = document.getElementById('read-btn');
+  const borrowBtn    = document.getElementById('borrow-btn');
+  const badge        = document.getElementById('availability-badge');
+  const returnBtn    = document.getElementById('return-btn');
   const ownedActions = document.getElementById('owned-actions');
 
   if (book.isAvailable) {
-    borrowBtn.style.display = 'inline-block';
-    ownedActions.style.display = 'none';
-    borrowBtn.disabled = false;
+    /* ── AVAILABLE ─────────────────────────────────────── */
+    borrowBtn.style.display    = 'inline-block';
+    borrowBtn.disabled          = false;
+    borrowBtn.textContent       = 'Borrow this Book';
+    borrowBtn.className         = 'available-button';
+    ownedActions.style.display  = 'none';
 
-    borrowBtn.textContent = "Borrow this Book";
-    borrowBtn.classList.remove("unavailable-button");
-    borrowBtn.classList.add("available-button");
-
-    badge.classList.remove('badge-borrowed');
-    badge.classList.remove(`badge-owned`);
-    badge.classList.add(`badge-available`);
+    badge.className  = 'badge badge-available';
     badge.textContent = 'AVAILABLE';
-    // massage.style.visibility = 'hidden';
-    // document.getElementById('days-left').textContent = calculateDaysLeft(book.borrowedAt);
-    
+
+  } else if (book.borrowedBy === user.id) {
+    /* ── OWNED BY THIS USER ────────────────────────────── */
+    borrowBtn.style.display    = 'none';
+    borrowBtn.disabled          = true;
+    ownedActions.style.display  = 'flex';
+
+    badge.className  = 'badge badge-owned';
+    badge.textContent = 'OWNED';
+
   } else {
-      if (book.borrowedBy === user.id) {
-      borrowBtn.style.display = 'none';
-      ownedActions.style.display = 'flex';
-      borrowBtn.disabled = true;
-      badge.classList.remove('badge-available');
-      badge.classList.remove(`badge-borrowed`);
-      badge.classList.add(`badge-owned`);
-      badge.textContent = 'OWNED';
+    /* ── BORROWED BY SOMEONE ELSE ──────────────────────── */
+    borrowBtn.style.display    = 'inline-block';
+    borrowBtn.disabled          = true;
+    borrowBtn.textContent       = 'Already Borrowed';
+    borrowBtn.className         = 'unavailable-button';
+    ownedActions.style.display  = 'none';
 
-      readBtn.addEventListener('click', () => {
-      window.location.href = `../../pages/user/read-book.html?id=${book.id}`;
-      });
-
-    } else {
-    borrowBtn.style.display = "inline-block";
-    ownedActions.style.display = 'none';
-    borrowBtn.disabled = true;
-
-    borrowBtn.textContent = "Already Borrowed";
-    borrowBtn.classList.remove("available-button");
-    borrowBtn.classList.add("unavailable-button");
-    badge.classList.remove('badge-available');
-    badge.classList.remove(`badge-owned`);
-    badge.classList.add(`badge-borrowed`);
+    badge.className  = 'badge badge-borrowed';
     badge.textContent = 'BORROWED';
-    }
-    // massage.style.visibility = 'visible';
-    // document.getElementById('days-left').textContent = calculateDaysLeft(book.borrowedAt);
-
   }
 }
 
-// Handles the return button click
+
+/* ============================================================
+   RETURN DIALOG
+   ============================================================ */
 function openReturnDialog() {
   const overlay = document.getElementById('delete-overlay');
-  if (!overlay) return;
-  overlay.classList.add('open');
+  if (overlay) overlay.classList.add('open');
 }
 
 function closeConfirmDialog() {
   const overlay = document.getElementById('delete-overlay');
-  if (!overlay) return;
-  overlay.classList.remove('open');
+  if (overlay) overlay.classList.remove('open');
 }
 
 function confirmReturn() {
@@ -155,37 +162,48 @@ function confirmReturn() {
 
 function handleReturn(book, user) {
   book.isAvailable = true;
-  book.borrowedBy = null;
-  book.borrowedAt = null;
+  book.borrowedBy  = null;
+  book.borrowedAt  = null;
   updateBook(book);
 
-  user.borrowedBooks = user.borrowedBooks.filter(item => item.bookId !== book.id);
+  user.borrowedBooks = user.borrowedBooks.filter(function (item) {
+    return item.bookId !== book.id;
+  });
   updateUser(user);
   setCurrentUser(user);
 
-  showToast("Book returned! Hope you enjoyed it.", "success");
+  showToast('Book returned! Hope you enjoyed it.', 'success');
   updateBorrowedUI(book, user);
 }
 
-function showToast(message, type = 'default') {
-  let toast = document.getElementById('toast');
-  let shouldRemove = false;
 
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'toast';
-    document.body.appendChild(toast);
-    shouldRemove = true;
+/* ============================================================
+   READ DIALOG — "Not implemented yet"
+   ============================================================ */
+function openReadDialog() {
+  const overlay = document.getElementById('read-overlay');
+  if (overlay) overlay.classList.add('open');
+}
+
+function closeReadDialog() {
+  const overlay = document.getElementById('read-overlay');
+  if (overlay) overlay.classList.remove('open');
+}
+
+/* Close read dialog on overlay click */
+document.addEventListener('DOMContentLoaded', function () {
+  const readOverlay = document.getElementById('read-overlay');
+  if (readOverlay) {
+    readOverlay.addEventListener('click', function (e) {
+      if (e.target === readOverlay) closeReadDialog();
+    });
   }
 
-  toast.textContent = message;
-  toast.className = 'toast toast--' + (type || 'default');
-  requestAnimationFrame(function () { toast.classList.add('show'); });
-
-  setTimeout(function () {
-    toast.classList.remove('show');
-    if (shouldRemove) {
-      setTimeout(function () { toast.remove(); }, 300);
+  /* Close on Escape */
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      closeConfirmDialog();
+      closeReadDialog();
     }
-  }, 3000);
-}
+  });
+});

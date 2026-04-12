@@ -1,17 +1,18 @@
-.browse-page {
-  padding: 24px 48px;
-}
+/* ============================================================
+   DevVerse — css/pages/browse.css
+   Page-specific styles for browse.html.
+   ============================================================ */
 
 .browse-header {
   margin-bottom: 20px;
 }
 
-.browse-controls {
-  margin-bottom: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.browse-search {
+  margin-bottom: 20px;
 }
+
+
+
 
 
 .book-card__avail--owned {
@@ -25,11 +26,6 @@
   height: 100%;
 }
 
-.book-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
 
 .book-card__fallback {
   display: none;
@@ -40,4 +36,55 @@
   font-size: 40px;
   color: #e5e7eb;
   background-color: #f3f4f6;
+}
+
+
+
+
+
+
+
+
+/* ── Responsive ─────────────────────────────────────────── */
+
+@media (max-width: 1000px) {
+  
+  .book-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+}
+
+@media (max-width: 820px) {
+  .browse-title {
+    font-size: 24px;
+  }
+
+  .book-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+}
+
+@media (max-width: 650px) {
+  .book-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+}
+
+
+@media (max-width: 520px) {
+  .browse-title {
+    font-size: 20px;
+  }
+
+  .book-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 24px;
+}
 }
