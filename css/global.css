@@ -226,7 +226,7 @@ h1, h2, h3, h4, h5, h6 {
   padding: 8px 18px;
   font-size: 14px;
   font-weight: 600;
-  color: #ffffff ;
+  color: #ffffff !important;
   background-color: var(--color-accent);
   border: none;
   border-radius: var(--radius-md);
