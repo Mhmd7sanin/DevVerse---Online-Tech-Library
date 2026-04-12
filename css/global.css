@@ -1352,21 +1352,21 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 48px;
+  padding: 20px 48px 20px 72px;
 }
 
 .auth-navbar__logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  /* gap: 10px; */
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 900;
   color: var(--color-text-primary);
   text-decoration: none;
 }
 
 .auth-navbar__logo img {
-  height: 28px;
+  height: 45px;
   width: auto;
 }
 
@@ -1486,6 +1486,10 @@ h1, h2, h3, h4, h5, h6 {
   text-decoration: underline;
 }
 
+#text-login {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
 
 /* ============================================================
    22. SECTION LABEL (eyebrow text)
