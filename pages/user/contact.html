@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact — DevVerse</title>
+  <link rel="stylesheet" href="../css/global.css" />
+  <link rel="stylesheet" href="../css/pages/contact.css" />
+</head>
+<body>
+
+  <!-- ─── NAVBAR (navbar.js handles guest / user state) ─── -->
+  <nav class="navbar" id="main-navbar">
+    <a href="/pages/index.html" class="navbar__logo">
+      <img src="../assets/logo.png" alt="DevVerse" onerror="this.style.display='none'" />
+      DevVerse
+    </a>
+    <div class="navbar-links--desktop" id="nav-links">
+      <a href="/pages/index.html">Home</a>
+      <a href="/pages/contact.html">Contact</a>
+      <a href="/pages/auth/login.html">Login</a>
+      <a href="/pages/auth/signup.html" class="nav-btn">Sign Up</a>
+    </div>
+    <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <div class="mobile-menu" id="mobile-menu"></div>
+
+  <!-- ─── CONTACT LAYOUT ─── -->
+  <main class="page-wrapper page-content">
+    <div class="contact-layout">
+
+      <!-- LEFT: Info column -->
+      <div class="contact-left">
+        <p class="section-label">Get in Touch</p>
+        <h1 class="contact-left__headline">
+          We're here to help you navigate your universe.
+        </h1>
+        <p class="contact-left__desc">
+          Have questions about borrowing, membership, or a specific title?
+          Our library team is ready to assist you.
+        </p>
+
+        <div class="contact-info-item">
+          <div class="contact-info-item__icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+            </svg>
+          </div>
+          <div class="contact-info-item__text">
+            <strong>Email us</strong>
+            <span>Expect a reply within 24 hours.</span>
+            <a href="mailto:support@devverse.lib" class="contact-info-item__link">
+              support@devverse.lib
+            </a>
+          </div>
+        </div>
+
+        <div class="contact-info-item">
+          <div class="contact-info-item__icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+          </div>
+          <div class="contact-info-item__text">
+            <strong>Visit us</strong>
+            <span>Our central library doors are always open.</span>
+            <strong class="contact-info-item__address">128 Library Way, Knowledge Park, NY</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Form card -->
+      <div class="contact-form-card">
+        <form id="contact-form" novalidate>
+
+          <div class="form-row-two-col">
+            <div class="form-group">
+              <label class="form-label" for="contact-name">Full Name</label>
+              <input
+                type="text"
+                id="contact-name"
+                class="form-input"
+                placeholder="e.g. Alex Reader"
+                autocomplete="name"
+              />
+              <span class="form-error" id="contact-name-error"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="contact-email">Email Address</label>
+              <input
+                type="email"
+                id="contact-email"
+                class="form-input"
+                placeholder="you@example.com"
+                autocomplete="email"
+              />
+              <span class="form-error" id="contact-email-error"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="contact-subject">Subject</label>
+            <select id="contact-subject" class="form-input form-select">
+              <option value="" disabled selected>Select a topic</option>
+              <option value="borrowing">Borrowing a Book</option>
+              <option value="membership">Membership &amp; Account</option>
+              <option value="title">Specific Title Request</option>
+              <option value="technical">Technical Issue</option>
+              <option value="other">Other</option>
+            </select>
+            <span class="form-error" id="contact-subject-error"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="contact-message">Message</label>
+            <textarea
+              id="contact-message"
+              class="form-input form-textarea"
+              placeholder="Tell us how we can help..."
+            ></textarea>
+            <span class="form-error" id="contact-message-error"></span>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full">
+            Send Message
+          </button>
+
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ─── FOOTER ─── -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <a href="/pages/index.html" class="footer__logo">
+        <img src="../assets/logo.png" alt="" onerror="this.style.display='none'" />
+        DevVerse
+      </a>
+      <div class="footer__links">
+        <a href="/pages/index.html">Home</a>
+        <a href="#">Library</a>
+        <a href="/pages/contact.html">Contact</a>
+        <a href="#">Terms</a>
+      </div>
+      <p class="footer__copy">© 2026 DevVerse. Built with precision.</p>
+    </div>
+  </footer>
+
+  <!-- ─── TOAST (driven by contact.js / navbar.js) ─── -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ─── SCRIPTS ─── -->
+  <script src="../js/storage.js"></script>
+  <script src="../js/navbar.js"></script>
+  <script src="../js/features/contact.js"></script>
+</body>
+</html>
