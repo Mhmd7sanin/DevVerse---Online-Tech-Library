@@ -87,13 +87,10 @@ function showFieldError(fieldId, message) {
     const errorSpan = document.getElementById(fieldId);
     if (errorSpan) {
         errorSpan.textContent = message;
-
         errorSpan.style.display = 'block';
-        errorSpan.style.color = 'var(--color-danger, #DC2626)';
-        errorSpan.style.fontSize = '12px';
-        errorSpan.style.marginTop = '4px';
     }
 }
+
 
 function clearErrors() {
     const errors = document.querySelectorAll('.form-error');
