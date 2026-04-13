@@ -22,7 +22,7 @@ function handleAddBook(event) {
     const category = document.getElementById('category').value;
     const description = document.getElementById('description').value.trim();
     const allBooks = getBooks();
-    const nextNumber = allBooks.length + 2; // as we start with b_001, we add 2 to get the next ID number
+    const nextNumber = allBooks.length + 1; // as we start with b_001, we add 1 to get the next ID number
     const idFormat = 'b_' + nextNumber.toString().padStart(3, '0');
 
  
