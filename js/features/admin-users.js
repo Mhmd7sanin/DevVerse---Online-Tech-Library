@@ -1,65 +1,63 @@
-
-
-document.addEventListener('DOMContentLoaded', () => {
-    initPage();
+document.addEventListener("DOMContentLoaded", () => {
+  initPage();
 });
 
 /**
  * Initial page setup
  */
 function initPage() {
-    // 2. Load data from storage (using storage.js)
-    const users = getUsers();
+  // 2. Load data from storage (using storage.js)
+  const users = getUsers();
 
-    // 3. Render the data into the page
-    renderUsersTable(users);
+  // 3. Render the data into the page
+  renderUsersTable(users);
 
-    // 4. Wire up events (search)
-    const searchInput = document.getElementById('user-search');
-    if (searchInput) {
-        searchInput.addEventListener('input', filterUsers);
-    }
+  // 4. Wire up events (search)
+  const searchInput = document.getElementById("user-search");
+  if (searchInput) {
+    searchInput.addEventListener("input", filterUsers);
+  }
 }
 
 /**
  * Renders the user table rows or shows empty state
- * @param {Array} usersArray 
+ * @param {Array} usersArray
  */
 function renderUsersTable(usersArray) {
-    const tbody = document.getElementById('users-tbody');
-    const userCountEl = document.getElementById('user-count');
+  const tbody = document.getElementById("users-tbody");
+  const userCountEl = document.getElementById("user-count");
 
-    if (!tbody) return;
+  if (!tbody) return;
 
-    // Update the counter at the top
-    userCountEl.textContent = usersArray.length;
+  // Update the counter at the top
+  userCountEl.textContent = usersArray.length;
 
-    if (usersArray.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px;">No users found.</td></tr>`;
-        return;
-    }
+  if (usersArray.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px;">No users found.</td></tr>`;
+    return;
+  }
 
-    // Rule: Use .map(buildUserRow).join('') to render lists
-    tbody.innerHTML = usersArray.map(buildUserRow).join('');
+  // Rule: Use .map(buildUserRow).join('') to render lists
+  tbody.innerHTML = usersArray.map(buildUserRow).join("");
 }
 
 /**
  * Builds ONE row of HTML for ONE user
- * @param {Object} user 
+ * @param {Object} user
  * @returns {string} HTML row
  */
 function buildUserRow(user) {
   const initials = getInitials(user.username);
   const isAdmin = user.isAdmin === true;
 
-  const roleClass = isAdmin ? 'role-badge--admin' : 'role-badge--user';
-  const roleText = isAdmin ? 'ADMIN' : 'USER';
+  const roleClass = isAdmin ? "role-badge--admin" : "role-badge--user";
+  const roleText = isAdmin ? "ADMIN" : "USER";
 
   const currentUser = getCurrentUser();
 
   const canDelete =
-     !isAdmin ||
-     (currentUser?.username === 'admin' && user.username !== 'admin');
+    !isAdmin ||
+    (currentUser?.username === "admin" && user.username !== "admin");
 
   return `
     <tr>
@@ -81,7 +79,7 @@ function buildUserRow(user) {
 
     <td>
   <div class="table-actions">
-    <span class="action-edit" onclick="openEditDialog()">Edit</span>
+    <span class="action-edit" onclick="editUser('${user.id}')">Edit</span>
     ${
       canDelete
         ? `<span class="action-delete" onclick="openDeleteDialog('${user.id}')">Delete</span>`
@@ -93,126 +91,123 @@ function buildUserRow(user) {
   `;
 }
 
-
-
-
 /**
  * Returns initials from username (e.g., "alex_reader" -> "AR")
  */
 function getInitials(username) {
-    if (!username) return "??";
-    // Split by space or underscore
-    const parts = username.split(/[ _]/);
-    if (parts.length >= 2) {
-        return (parts[0][0] + parts[1][0]).toUpperCase();
-    }
-    return username.substring(0, 2).toUpperCase();
+  if (!username) return "??";
+  // Split by space or underscore
+  const parts = username.split(/[ _]/);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+  return username.substring(0, 2).toUpperCase();
 }
 
 /**
  * Filters users by search input text
  */
 function filterUsers() {
-    const query = document.getElementById('user-search').value.toLowerCase().trim();
-    const allUsers = getUsers(); // Get fresh data from storage.js
+  const query = document
+    .getElementById("user-search")
+    .value.toLowerCase()
+    .trim();
+  const allUsers = getUsers(); // Get fresh data from storage.js
 
-    const filtered = query
-        ? allUsers.filter(user => 
-            user.username.toLowerCase().includes(query) || 
-            user.email.toLowerCase().includes(query)
-          )
-        : allUsers;
+  const filtered = query
+    ? allUsers.filter(
+        (user) =>
+          user.username.toLowerCase().includes(query) ||
+          user.email.toLowerCase().includes(query),
+      )
+    : allUsers;
 
-    renderUsersTable(filtered);
+  renderUsersTable(filtered);
 }
 
 /**
  * Deletes a user by ID and refreshes the table
  */
 function deleteUser(userId) {
-    if (confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
-        // Use storage.js logic: Get, Filter, Save
-        let users = getUsers();
-        users = users.filter(u => u.id !== userId);
-        
-        saveUsers(users); // Function from storage.js
-        
-        // Re-render the table with fresh data
-        renderUsersTable(getUsers());
-        showToast('User deleted successfully', 'success'); // If you have a toast system
-    }
-}
+  if (
+    confirm(
+      "Are you sure you want to delete this user? This action cannot be undone.",
+    )
+  ) {
+    // Use storage.js logic: Get, Filter, Save
+    let users = getUsers();
+    users = users.filter((u) => u.id !== userId);
 
+    saveUsers(users); // Function from storage.js
+
+    // Re-render the table with fresh data
+    renderUsersTable(getUsers());
+    showToast("User deleted successfully", "success"); // If you have a toast system
+  }
+}
 
 let selectedUserId = null;
 
 function openDeleteDialog(userId) {
   selectedUserId = userId;
-  document.getElementById('delete-overlay').classList.add('open');
+  document.getElementById("delete-overlay").classList.add("open");
 }
 
 function closeDeleteDialog() {
   selectedUserId = null;
-  document.getElementById('delete-overlay').classList.remove('open');
+  document.getElementById("delete-overlay").classList.remove("open");
 }
 
-
-
-document.addEventListener('DOMContentLoaded', () => {
-  const confirmBtn = document.getElementById('confirm-delete-btn');
+document.addEventListener("DOMContentLoaded", () => {
+  const confirmBtn = document.getElementById("confirm-delete-btn");
 
   if (confirmBtn) {
-    confirmBtn.addEventListener('click', () => {
+    confirmBtn.addEventListener("click", () => {
       if (!selectedUserId) return;
 
       let users = getUsers();
-      users = users.filter(u => u.id !== selectedUserId);
+      users = users.filter((u) => u.id !== selectedUserId);
 
       saveUsers(users);
 
       closeDeleteDialog();
       renderUsersTable(getUsers());
 
-      showToast('User deleted successfully', 'success');
+      showToast("User deleted successfully", "success");
     });
   }
 });
 
-function openEditDialog() {
-  document.getElementById('edit-overlay').classList.add('open');
+function openMainAdminEditDialog() {
+  document.getElementById("edit-overlay").classList.add("open");
 }
 
 function closeEditDialog() {
-  document.getElementById('edit-overlay').classList.remove('open');
+  document.getElementById("edit-overlay").classList.remove("open");
 }
 
-
-function showToast(message, type = 'default') {
-  const toast = document.createElement('div');
+function showToast(message, type = "default") {
+  const toast = document.createElement("div");
   toast.className = `toast toast--${type}`;
   toast.textContent = message;
 
   document.body.appendChild(toast);
 
-  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => toast.classList.add("show"), 10);
 
   setTimeout(() => {
-    toast.classList.remove('show');
+    toast.classList.remove("show");
     setTimeout(() => toast.remove(), 300);
   }, 3000);
 }
-
 
 /**
  * Redirects to the Edit User page
  */
 function editUser(userId) {
-    /*window.location.href = `edit-user.html?id=${userId}`;*/
-
-
-
-
-
-
-    
+  if (userId === "u_001") {
+    openMainAdminEditDialog();
+    return;
+  }
+  window.location.href = `edit-user.html?id=${userId}`;
 }

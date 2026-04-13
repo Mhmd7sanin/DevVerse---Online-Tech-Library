@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit User</title>
+  <link rel="stylesheet" href="../../css/global.css">
+  <link rel="stylesheet" href="../../css/pages/edit-user.css">
+</head>
+<body>
+
+  <div id="navbar-container"></div>
+
+  <main class="page-wrapper page-content">
+
+    <!-- Back link -->
+    <a href="../../pages/admin/users.html" class="back-link">
+      ← Back to User Management
+    </a>
+
+    <!-- Page heading -->
+    <div class="eu-heading">
+      <p class="section-label">USER SETTINGS</p>
+      <h1 class="eu-title">Edit User Profile</h1>
+      <p class="eu-subtitle">
+        Managing account details and active loans for
+        <strong id="heading-username"></strong>
+      </p>
+    </div>
+
+    <!-- ── SECTION 1: Account Details ── -->
+    <section class="eu-card">
+      <p class="eu-card__label">ACCOUNT DETAILS</p>
+
+      <div class="eu-fields-row">
+        <div class="form-group">
+          <label class="form-label" for="edit-username">Username</label>
+          <input
+            class="form-input"
+            type="text"
+            id="edit-username"
+            placeholder="Username"
+          >
+          <span class="form-error" id="edit-username-error"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="edit-email">Email Address</label>
+          <input
+            class="form-input"
+            type="email"
+            id="edit-email"
+            placeholder="email@example.com"
+          >
+          <span class="form-error" id="edit-email-error"></span>
+        </div>
+      </div>
+
+      <!-- Admin privileges checkbox -->
+      <div class="form-check-box eu-checkbox-row" id="admin-checkbox-wrap">
+        <input type="checkbox" id="edit-is-admin">
+        <label for="edit-is-admin">Administrator Privileges</label>
+      </div>
+
+      <button class="btn btn-primary eu-update-btn" id="update-btn">
+        Update User Info
+      </button>
+    </section>
+
+    <!-- ── SECTION 2: Active Borrowed Books ── -->
+    <section class="eu-card" id="borrowed-section">
+      <p class="eu-card__label">ACTIVE BORROWED BOOKS</p>
+      <div id="borrowed-list" class="eu-borrowed-list"></div>
+      <div class="empty-state" id="borrowed-empty" style="display:none;">
+        <p class="empty-state__msg">This user has no active borrowed books.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/navbar.js"></script>
+  <script src="../../js/seed.js"></script>
+  <script src="../../js/features/edit-user.js"></script>
+
+</body>
+</html>
