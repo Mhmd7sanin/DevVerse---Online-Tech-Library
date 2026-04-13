@@ -73,42 +73,41 @@ devverse/
 │       └── create-account.html
 │
 ├── css/
-│   ├── global.css              ← Member 1 (tokens) 
+│   ├── global.css        (tokens) 
 │   └── pages/
-│       ├── home.css            ← Member 2
-│       ├── contact.css         ← Member 2
-│       ├── signup.css          ← Member 2
-│       ├── login.css           ← Member 2
-│       ├── browse.css          ← Member 3
-│       ├── book-detail.css     ← Member 3
-│       ├── my-library.css      ← Member 4
-│       ├── profile.css         ← Member 4
-│       ├── dashboard.css       ← Member 5
-│       ├── add-book.css        ← Member 5
-│       ├── edit-book.css       ← Member 5
-│       ├── users.css           ← Member 6
-│       └── create-account.css  ← Member 6
+│       ├── home.css           
+│       ├── contact.css       
+│       ├── signup.css         
+│       ├── login.css           
+│       ├── browse.css          
+│       ├── book-detail.css     
+│       ├── my-library.css     
+│       ├── profile.css       
+│       ├── dashboard.css       
+│       ├── add-book.css       
+│       ├── edit-book.css       
+│       ├── users.css           
+│       └── create-account.css  
 │
 ├── js/
-│   ├── storage.js              ← Member 1 ONLY — the only file that touches localStorage
-│   ├── navbar.js               ← Member 1
-│   ├── seed.js                 ← Member 1
+│   ├── storage.js       ONLY — the only file that touches localStorage
+│   ├── navbar.js               
+│   ├── seed.js                 
 │   └── features/
-│       ├── home.js             ← Member 2
-│       ├── auth.js             ← Member 2
-│       ├── browse.js           ← Member 3
-│       ├── book-detail.js      ← Member 3
-│       ├── my-library.js       ← Member 4
-│       ├── profile.js          ← Member 4
-│       ├── admin-catalog.js    ← Member 5
-│       ├── add-book.js         ← Member 5
-│       ├── edit-book.js        ← Member 5
-│       ├── admin-users.js      ← Member 6
-│       └── create-account.js   ← Member 6
+│       ├── home.js             
+│       ├── auth.js             
+│       ├── browse.js           
+│       ├── book-detail.js      
+│       ├── my-library.js       
+│       ├── profile.js         
+│       ├── admin-catalog.js    
+│       ├── add-book.js        
+│       ├── edit-book.js       
+│       ├── admin-users.js      
+│       └── create-account.js   
 │
 └── assets/
     ├── logo.png                ← Project logo (PNG file)
-    └── placeholder-cover.svg   ← Default book cover
 ```
 
 ---
