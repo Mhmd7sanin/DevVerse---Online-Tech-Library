@@ -263,6 +263,11 @@ function logoutUser() {
 
   let prefix = '';
 
+  if(path.includes('/pages/contact.html')){
+    window.location.href = prefix + 'auth/login.html';
+    return;
+  }
+
   if (path.includes('/pages/auth/')) {
     prefix = '../../';
   } else if (path.includes('/pages/')) {
