@@ -54,8 +54,8 @@ Team ID: 17 | Supervisors: Dr. Neamat El Tazi
 
 ```
 devverse/
+├── index.html
 ├── pages/
-│   ├── index.html
 │   ├── contact.html
 │   ├── auth/
 │   │   ├── signup.html
