@@ -3,7 +3,7 @@
 A browser-based library management app built with vanilla HTML, CSS, and JavaScript.
 
 **IS231: Web Technology — Cairo University, Faculty of Computer Science and Artificial Intelligence**
-Team ID: 17 | Supervisors: Dr. Neamat El Tazi 
+Team ID: 12 | Supervisors: Dr. Neamat El Tazi 
 
 ---
 
@@ -70,6 +70,7 @@ devverse/
 │       ├── add-book.html
 │       ├── edit-book.html
 │       ├── users.html
+│       ├── edit-user.html
 │       └── create-account.html
 │
 ├── css/
@@ -85,7 +86,8 @@ devverse/
 │       ├── profile.css       
 │       ├── dashboard.css       
 │       ├── add-book.css       
-│       ├── edit-book.css       
+│       ├── edit-book.css
+│       ├── edit-user.css     
 │       ├── users.css           
 │       └── create-account.css  
 │
@@ -102,7 +104,8 @@ devverse/
 │       ├── profile.js         
 │       ├── admin-catalog.js    
 │       ├── add-book.js        
-│       ├── edit-book.js       
+│       ├── edit-book.js
+│       ├── edit-user.js       
 │       ├── admin-users.js      
 │       └── create-account.js   
 │
