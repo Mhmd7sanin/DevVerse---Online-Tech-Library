@@ -1,27 +1,29 @@
+
+//admin-users.js file    Done
+
 document.addEventListener("DOMContentLoaded", () => {
   initPage();
 });
 
-/**
- * Initial page setup
- */
-function initPage() {
-  // 2. Load data from storage (using storage.js)
-  const users = getUsers();
 
-  // 3. Render the data into the page
+async function initPage() {
+  const users = await getUsers();
+
   renderUsersTable(users);
 
-  // 4. Wire up events (search)
   const searchInput = document.getElementById("user-search");
   if (searchInput) {
     searchInput.addEventListener("input", filterUsers);
+  }
+
+  const confirmBtn = document.getElementById("confirm-delete-btn");
+  if (confirmBtn) {
+    confirmBtn.addEventListener("click", confirmDeleteUser);
   }
 }
 
 /**
  * Renders the user table rows or shows empty state
- * @param {Array} usersArray
  */
 function renderUsersTable(usersArray) {
   const tbody = document.getElementById("users-tbody");
@@ -29,7 +31,6 @@ function renderUsersTable(usersArray) {
 
   if (!tbody) return;
 
-  // Update the counter at the top
   userCountEl.textContent = usersArray.length;
 
   if (usersArray.length === 0) {
@@ -37,14 +38,11 @@ function renderUsersTable(usersArray) {
     return;
   }
 
-  // Rule: Use .map(buildUserRow).join('') to render lists
   tbody.innerHTML = usersArray.map(buildUserRow).join("");
 }
 
 /**
  * Builds ONE row of HTML for ONE user
- * @param {Object} user
- * @returns {string} HTML row
  */
 function buildUserRow(user) {
   const initials = getInitials(user.username);
@@ -77,26 +75,25 @@ function buildUserRow(user) {
 
       <td>${user.borrowedBooks.length} books</td>
 
-    <td>
-  <div class="table-actions">
-    <span class="action-edit" onclick="editUser('${user.id}')">Edit</span>
-    ${
-      canDelete
-        ? `<span class="action-delete" onclick="openDeleteDialog('${user.id}')">Delete</span>`
-        : '<span style="color:#ccc">—</span>'
-    }
-  </div>
-</td>
+      <td>
+        <div class="table-actions">
+          <span class="action-edit" onclick="editUser('${user.id}')">Edit</span>
+          ${
+            canDelete
+              ? `<span class="action-delete" onclick="openDeleteDialog('${user.id}')">Delete</span>`
+              : '<span style="color:#ccc">—</span>'
+          }
+        </div>
+      </td>
     </tr>
   `;
 }
 
 /**
- * Returns initials from username (e.g., "alex_reader" -> "AR")
+ * Initials helper
  */
 function getInitials(username) {
   if (!username) return "??";
-  // Split by space or underscore
   const parts = username.split(/[ _]/);
   if (parts.length >= 2) {
     return (parts[0][0] + parts[1][0]).toUpperCase();
@@ -105,46 +102,28 @@ function getInitials(username) {
 }
 
 /**
- * Filters users by search input text
+ * Filter users
  */
-function filterUsers() {
-  const query = document
-    .getElementById("user-search")
-    .value.toLowerCase()
-    .trim();
-  const allUsers = getUsers(); // Get fresh data from storage.js
+async function filterUsers() {
+  const query = document.getElementById("user-search").value.toLowerCase().trim();
+
+  const allUsers = await getUsers();
 
   const filtered = query
     ? allUsers.filter(
         (user) =>
           user.username.toLowerCase().includes(query) ||
-          user.email.toLowerCase().includes(query),
+          user.email.toLowerCase().includes(query)
       )
     : allUsers;
 
   renderUsersTable(filtered);
 }
 
-/**
- * Deletes a user by ID and refreshes the table
- */
-function deleteUser(userId) {
-  if (
-    confirm(
-      "Are you sure you want to delete this user? This action cannot be undone.",
-    )
-  ) {
-    // Use storage.js logic: Get, Filter, Save
-    let users = getUsers();
-    users = users.filter((u) => u.id !== userId);
 
-    saveUsers(users); // Function from storage.js
-
-    // Re-render the table with fresh data
-    renderUsersTable(getUsers());
-    showToast("User deleted successfully", "success"); // If you have a toast system
-  }
-}
+// ======================================
+// DELETE FLOW 
+// ======================================
 
 let selectedUserId = null;
 
@@ -158,33 +137,29 @@ function closeDeleteDialog() {
   document.getElementById("delete-overlay").classList.remove("open");
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const confirmBtn = document.getElementById("confirm-delete-btn");
+async function confirmDeleteUser() {
+  if (!selectedUserId) return;
 
-  if (confirmBtn) {
-    confirmBtn.addEventListener("click", () => {
-      if (!selectedUserId) return;
+  try {
+    await deleteUser(selectedUserId); 
 
-      let users = getUsers();
-      users = users.filter((u) => u.id !== selectedUserId);
+    closeDeleteDialog();
 
-      saveUsers(users);
+    const users = await getUsers(); // refresh from backend
+    renderUsersTable(users);
 
-      closeDeleteDialog();
-      renderUsersTable(getUsers());
+    showToast("User deleted successfully", "success");
 
-      showToast("User deleted successfully", "success");
-    });
+  } catch (error) {
+    console.error(error);
+    showToast("Failed to delete user", "error");
   }
-});
-
-function openMainAdminEditDialog() {
-  document.getElementById("edit-overlay").classList.add("open");
 }
 
-function closeEditDialog() {
-  document.getElementById("edit-overlay").classList.remove("open");
-}
+
+// ======================================
+// TOAST
+// ======================================
 
 function showToast(message, type = "default") {
   const toast = document.createElement("div");
@@ -201,9 +176,11 @@ function showToast(message, type = "default") {
   }, 3000);
 }
 
-/**
- * Redirects to the Edit User page
- */
+
+// ======================================
+// EDIT USER
+// ======================================
+
 function editUser(userId) {
   if (userId === "u_001") {
     openMainAdminEditDialog();

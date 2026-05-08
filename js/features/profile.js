@@ -1,111 +1,98 @@
-// js/features/profile.js
+/* ============================================================
+   profile.js — User Profile Page
+============================================================ */
 
-// 1. Auth Guard: Redirects unauthenticated users
 if (typeof requireAuth === 'function') {
-    requireAuth(false);
+  requireAuth(false);
 }
 
 document.addEventListener('DOMContentLoaded', initPage);
 
-// 2. Initialize Page
-function initPage() {
-    // Fetch user data (fallback to mock data for testing)
-    const user = (typeof getCurrentUser === 'function') ? getCurrentUser() : JSON.parse(localStorage.getItem('dv_current_user')) || {
-        username: "alex_dev",
-        email: "alex@example.com",
-        createdAt: "2026-03-29",
-        borrowedBooks: [{ bookId: "b_001", borrowedAt: "2026-03-29" }]
-    };
+/* ── INIT ── */
+async function initPage() {
 
-    populateProfile(user);
-    renderBorrowedList(user);
+  const user = getCurrentUser();
+  if (!user) return;
+
+  populateProfile(user);
+  await renderBorrowedList(user);
 }
 
-// 3. Fills in all the profile fields from the user object
+/* ── PROFILE INFO ── */
 function populateProfile(user) {
-    if (!user) return;
 
-    const usernameEl = document.getElementById('profile-username');
-    const emailEl = document.getElementById('profile-email');
-    const initialsEl = document.getElementById('profile-initials');
-    const sinceEl = document.getElementById('profile-since');
-    const countEl = document.getElementById('profile-count');
+  document.getElementById('profile-username').textContent = `@${user.username}`;
+  document.getElementById('profile-email').textContent = user.email;
 
-    if (usernameEl) usernameEl.textContent = `@${user.username}`;
-    if (emailEl) emailEl.textContent = user.email;
-    
-    // Extract first 2 letters for the avatar
-    if (initialsEl && user.username) {
-        initialsEl.textContent = user.username.substring(0, 2).toUpperCase();
-    }
+  const initials = user.username.substring(0, 2).toUpperCase();
+  document.getElementById('profile-initials').textContent = initials;
 
-    if (sinceEl && user.createdAt) {
-        sinceEl.textContent = formatDate(user.createdAt);
-    }
+  document.getElementById('profile-since').textContent =
+    formatDate(user.createdAt);
 
-    if (countEl) {
-        const count = user.borrowedBooks ? user.borrowedBooks.length : 0;
-        countEl.textContent = `${count} title${count !== 1 ? 's' : ''}`;
-    }
+  document.getElementById('profile-count').textContent =
+    `${user.borrowedBooks?.length || 0} titles`;
 }
 
-// 4. Renders the "Currently Borrowed" horizontal list
-function renderBorrowedList(user) {
-    const listContainer = document.getElementById('borrowed-list');
-    if (!listContainer) return;
+/* ── BORROWED LIST ── */
+async function renderBorrowedList(user) {
 
-    // Show empty state message if no books are borrowed
-    if (!user.borrowedBooks || user.borrowedBooks.length === 0) {
-        listContainer.innerHTML = '<p class="empty-state__msg">No books currently borrowed.</p>';
-        return;
-    }
+  const container = document.getElementById('borrowed-list');
+  if (!container) return;
 
-    // Fetch all books
-    const allBooks = (typeof getBooks === 'function') ? getBooks() : JSON.parse(localStorage.getItem('dv_books')) || [
-        { id: "b_001", name: "The Clean Coder", author: "Robert C. Martin", category: "Backend" }
-    ];
+  if (!user.borrowedBooks?.length) {
+    container.innerHTML = `<p>No books currently borrowed.</p>`;
+    return;
+  }
 
-    // Build HTML for each borrowed book
-    const html = user.borrowedBooks.map(borrowed => {
-        const book = allBooks.find(b => b.id === borrowed.bookId);
-        return book ? buildBorrowedItem(book, borrowed.borrowedAt) : '';
-    }).join('');
+  const allBooks = await getBooks();
 
-    listContainer.innerHTML = html;
+  const items = user.borrowedBooks
+    .map(entry => {
+      // entry is { bookId: "b_001", borrowedAt: "..." }
+      const bookCustomId = typeof entry === 'object' ? entry.bookId : entry;
+      const borrowedAt   = typeof entry === 'object' ? entry.borrowedAt : null;
+      const book = allBooks.find(b => b.id === bookCustomId);
+      return book ? buildBorrowedItem(book, borrowedAt) : '';
+    })
+    .join('');
+
+  container.innerHTML = items || `<p>No books currently borrowed.</p>`;
 }
 
-// 5. Builds one horizontal borrowed item card HTML string
+/* ── ITEM CARD ── */
 function buildBorrowedItem(book, borrowedAt) {
-    // Assign specific icons based on the book category
-    let icon = '🤍';
-    if (book.category === 'Frontend') icon = '🎨';
-    else if (book.category === 'Backend') icon = '⚙️';
-    else if (book.category === 'Security') icon = '🛡️';
-    else if (book.category === 'DevOps') icon = '🚀';
 
-    // Item is now a clickable link to the detail page
-    return `
-        <a href="book-detail.html?id=${book.id}" class="borrowed-item" style="text-decoration: none; color: inherit; cursor: pointer;">
-            <div class="borrowed-item__cover">
-                <div class="library-cover-box" style="font-size: 8px;">
-                    <span style="font-size: 16px; margin-bottom: 2px;">${icon}</span>
-                    ${book.category.substring(0, 4).toUpperCase()}
-                </div>
-            </div>
-            <div class="borrowed-item__info">
-                <div class="borrowed-item__category">${book.category}</div>
-                <div class="borrowed-item__title">${book.name}</div>
-                <div class="borrowed-item__author">${book.author}</div>
-                <div class="borrowed-item__date">📅 Borrowed ${formatDate(borrowedAt)}</div>
-            </div>
-        </a>
-    `;
+  let icon = '📚';
+  if (book.category === 'Frontend') icon = '🎨';
+  if (book.category === 'Backend') icon = '⚙️';
+  if (book.category === 'Security') icon = '🛡️';
+  if (book.category === 'DevOps') icon = '🚀';
+
+  return `
+    <a href="book-detail.html?id=${book._id}" class="borrowed-item">
+      <div class="borrowed-item__cover">
+        <span>${icon}</span>
+      </div>
+      <div class="borrowed-item__info">
+        <div class="borrowed-item__category">${book.category}</div>
+        <div class="borrowed-item__title">${book.name}</div>
+        <div class="borrowed-item__author">${book.author}</div>
+        <div class="borrowed-item__date">
+          📅 Borrowed ${formatDate(borrowedAt)}
+        </div>
+      </div>
+    </a>
+  `;
 }
 
-// 6. Formats a date string like "2026-03-29" -> "March 29, 2026"
+/* ── DATE FORMAT ── */
 function formatDate(dateString) {
-    if (!dateString) return '';
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', options);
+  if (!dateString) return '';
+
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
 }

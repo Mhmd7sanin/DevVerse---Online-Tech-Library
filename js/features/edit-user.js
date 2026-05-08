@@ -1,218 +1,351 @@
 /* ============================================================
-   DevVerse — js/features/edit-user.js
-   Page: pages/admin/edit-user.html
-   Depends on: storage.js, navbar.js
-   ============================================================ */
+   edit-user.js 
+============================================================ */
 
-/* ── 1. Auth guard ───────────────────────────────────────── */
 const adminUser = requireAuth(true);
 
-/* ── 2. Read ?id= from URL ───────────────────────────────── */
-const params    = new URLSearchParams(window.location.search);
-const userId    = params.get('id');
+const params = new URLSearchParams(window.location.search);
+const userId = params.get('id');
 
 if (!userId) {
-//   window.location.href = '../../pages/admin/users.html';
+  window.location.href = '../../pages/admin/users.html';
 }
 
-let targetUser = getUserById(userId);
-
-if (!targetUser) {
-//   window.location.href = '../../pages/admin/users.html';
-}
+let targetUser = null;
 
 
-/* ── 3. DOM refs ─────────────────────────────────────────── */
+/* ============================================================
+   DOM REFS
+============================================================ */
+
 const headingUsername = document.getElementById('heading-username');
 const usernameInput   = document.getElementById('edit-username');
 const emailInput      = document.getElementById('edit-email');
 const isAdminCheckbox = document.getElementById('edit-is-admin');
 const updateBtn       = document.getElementById('update-btn');
+
 const borrowedList    = document.getElementById('borrowed-list');
 const borrowedEmpty   = document.getElementById('borrowed-empty');
 
 
 /* ============================================================
-   POPULATE PAGE
-   ============================================================ */
-function populatePage() {
-  document.title = 'Edit ' + targetUser.username + ' — DevVerse Admin';
+   INIT
+============================================================ */
 
-  headingUsername.textContent = '@' + targetUser.username;
-  usernameInput.value         = targetUser.username;
-  emailInput.value            = targetUser.email || '';
-  isAdminCheckbox.checked     = targetUser.isAdmin;
+document.addEventListener('DOMContentLoaded', initPage);
+
+async function initPage() {
+
+  targetUser = await getUserById(userId);
+
+  if (!targetUser) {
+    window.location.href = '../../pages/admin/users.html';
+    return;
+  }
+
+  populatePage();
+}
+
+
+/* ============================================================
+   POPULATE PAGE
+============================================================ */
+
+function populatePage() {
+
+  document.title =
+    'Edit ' + targetUser.username + ' — DevVerse Admin';
+
+  headingUsername.textContent =
+    '@' + targetUser.username;
+
+  usernameInput.value =
+    targetUser.username || '';
+
+  emailInput.value =
+    targetUser.email || '';
+
+  isAdminCheckbox.checked =
+    targetUser.isAdmin || false;
 
   renderBorrowedBooks();
 }
 
 
 /* ============================================================
-   UPDATE USER INFO
-   ============================================================ */
-updateBtn.addEventListener('click', function () {
+   UPDATE USER
+============================================================ */
+
+updateBtn.addEventListener('click', async function () {
+
   clearErrors();
 
   const newUsername = usernameInput.value.trim();
   const newEmail    = emailInput.value.trim();
   const newIsAdmin  = isAdminCheckbox.checked;
 
-  /* Validate */
   let valid = true;
 
+  /* Username validation */
+
   if (!newUsername) {
-    showFieldError('edit-username', 'Username is required.');
+
+    showFieldError(
+      'edit-username',
+      'Username is required.'
+    );
+
     valid = false;
+
   } else if (newUsername.length < 3) {
-    showFieldError('edit-username', 'Must be at least 3 characters.');
+
+    showFieldError(
+      'edit-username',
+      'Must be at least 3 characters.'
+    );
+
     valid = false;
   }
 
-  if (!newEmail || !newEmail.includes('@')) {
-    showFieldError('edit-email', 'Enter a valid email address.');
+  /* Email validation */
+
+  if (!newEmail) {
+
+    showFieldError(
+      'edit-email',
+      'Email is required.'
+    );
+
+    valid = false;
+
+  } else if (
+    !newEmail.includes('@') ||
+    !newEmail.includes('.')
+  ) {
+
+    showFieldError(
+      'edit-email',
+      'Enter a valid email address.'
+    );
+
     valid = false;
   }
 
   if (!valid) return;
 
-  /* Check uniqueness — allow same username as this user */
-  const existing = getUserByUsername(newUsername);
-  if (existing && existing.id !== targetUser.id) {
-    showFieldError('edit-username', 'That username is already taken.');
+
+  /* Username uniqueness */
+
+  const existingUser =
+    await getUserByUsername(newUsername);
+
+  if (
+    existingUser &&
+    existingUser._id !== targetUser._id
+  ) {
+
+    showFieldError(
+      'edit-username',
+      'That username is already taken.'
+    );
+
     return;
   }
 
-  /* Apply changes */
+
   targetUser.username = newUsername;
   targetUser.email    = newEmail;
   targetUser.isAdmin  = newIsAdmin;
 
-  updateUser(targetUser);
 
-  /* If editing the currently logged-in admin, keep session fresh */
-  if (adminUser.id === targetUser.id) {
-    setCurrentUser(targetUser);
+  const updatedUser =
+    await updateUser(targetUser);
+
+  targetUser = updatedUser;
+
+
+
+  if (
+    adminUser &&
+    adminUser._id === updatedUser._id
+  ) {
+    setCurrentUser(updatedUser);
   }
 
-  /* Refresh heading */
-  headingUsername.textContent = '@' + targetUser.username;
 
-  showToast('User info updated successfully.', 'success');
+  headingUsername.textContent =
+    '@' + updatedUser.username;
+
+  showToast(
+    'User info updated successfully.',
+    'success'
+  );
 });
 
 
 /* ============================================================
    BORROWED BOOKS
-   ============================================================ */
-function renderBorrowedBooks() {
-  const borrowed = targetUser.borrowedBooks || [];
+============================================================ */
+
+async function renderBorrowedBooks() {
+
+  const borrowed =
+    targetUser.borrowedBooks || [];
 
   if (!borrowed.length) {
-    borrowedList.style.display  = 'none';
+
+    borrowedList.style.display = 'none';
     borrowedEmpty.style.display = 'block';
+
     return;
   }
 
   borrowedEmpty.style.display = 'none';
-  borrowedList.style.display  = 'flex';
+  borrowedList.style.display = 'flex';
+
+  const allBooks = await getBooks();
 
   borrowedList.innerHTML = borrowed.map(function (entry) {
-    const book = getBookById(entry.bookId);
+
+    const book = allBooks.find(
+      b => b.id === entry.bookId
+    );
+
     if (!book) return '';
 
-    const dateFormatted = formatDate(entry.borrowedAt);
+    const dateFormatted =
+      formatDate(entry.borrowedAt);
 
     return `
-      <div class="eu-book-item" data-book-id="${book.id}">
+      <div class="eu-book-item">
+
         <div class="eu-book-item__left">
-          <div class="eu-book-item__thumb">♡</div>
-          <div class="eu-book-item__info">
-            <p class="eu-book-item__title">${escapeHtml(book.name)}</p>
-            <p class="eu-book-item__meta">
-              ${escapeHtml(book.author)} · Borrowed ${dateFormatted}
-            </p>
+
+          <div class="eu-book-item__thumb">
+            ♡
           </div>
+
+          <div class="eu-book-item__info">
+
+            <p class="eu-book-item__title">
+              ${escapeHtml(book.name)}
+            </p>
+
+            <p class="eu-book-item__meta">
+              ${escapeHtml(book.author)}
+              · Borrowed ${dateFormatted}
+            </p>
+
+          </div>
+
         </div>
+
         <button
           class="eu-return-btn"
-          onclick="markAsReturned('${book.id}')"
+          onclick="markAsReturned('${book._id}')"
         >
           Mark as Returned
         </button>
-      </div>`;
+
+      </div>
+    `;
+
   }).join('');
 }
 
 
 /* ============================================================
    MARK AS RETURNED
-   ============================================================ */
-function markAsReturned(bookId) {
-  /* Update the book — set back to available */
-  const book = getBookById(bookId);
-  if (book) {
-    updateBook({
-      id:          book.id,
-      name:        book.name,
-      author:      book.author,
-      category:    book.category,
-      description: book.description,
-      isAvailable: true,
-      borrowedBy:  null,
-      borrowedAt:  null
-    });
-  }
+============================================================ */
 
-  /* Remove from user's borrowed list */
-  targetUser.borrowedBooks = targetUser.borrowedBooks.filter(function (e) {
-    return e.bookId !== bookId;
-  });
-  updateUser(targetUser);
+async function markAsReturned(bookMongoId) {
 
-  /* If this is the logged-in user, keep session fresh */
-  if (adminUser.id === targetUser.id) {
-    setCurrentUser(targetUser);
-  }
+  const currentUser =
+    await getUserById(targetUser._id);
 
-  showToast('Book marked as returned.', 'success');
+  await returnBook(
+    bookMongoId,
+    currentUser._id
+  );
+
+  targetUser =
+    await getUserById(targetUser._id);
+
   renderBorrowedBooks();
+
+  showToast(
+    'Book marked as returned.',
+    'success'
+  );
 }
 
 
 /* ============================================================
    HELPERS
-   ============================================================ */
+============================================================ */
+
 function showFieldError(fieldId, message) {
-  const input = document.getElementById(fieldId);
-  const error = document.getElementById(fieldId + '-error');
-  if (input) input.classList.add('error');
-  if (error) { error.textContent = message; error.classList.add('visible'); }
+
+  const input =
+    document.getElementById(fieldId);
+
+  const error =
+    document.getElementById(fieldId + '-error');
+
+  if (input) {
+    input.classList.add('error');
+  }
+
+  if (error) {
+
+    error.textContent = message;
+    error.classList.add('visible');
+  }
 }
+
 
 function clearErrors() {
-  document.querySelectorAll('.form-input.error').forEach(function (el) {
-    el.classList.remove('error');
-  });
-  document.querySelectorAll('.form-error.visible').forEach(function (el) {
-    el.classList.remove('visible');
-    el.textContent = '';
-  });
+
+  document
+    .querySelectorAll('.form-input.error')
+    .forEach(function (el) {
+
+      el.classList.remove('error');
+    });
+
+  document
+    .querySelectorAll('.form-error.visible')
+    .forEach(function (el) {
+
+      el.classList.remove('visible');
+      el.textContent = '';
+    });
 }
+
 
 function formatDate(dateStr) {
+
   if (!dateStr) return '';
-  const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+  const d = new Date(dateStr);
+
+  return d.toLocaleDateString(
+    'en-US',
+    {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    }
+  );
 }
 
+
 function escapeHtml(str) {
+
   return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
-
-
-/* ── 4. Init ─────────────────────────────────────────────── */
-populatePage();

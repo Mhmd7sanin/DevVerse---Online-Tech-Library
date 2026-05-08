@@ -1,11 +1,12 @@
 /**
- * DevVerse — create-account.js
+ * DevVerse — create-account.js 
  */
-
 
 document.addEventListener('DOMContentLoaded', () => {
   initCreatePage();
 });
+
+/* ───────────────────────────────────────────── */
 
 function initCreatePage() {
   const form = document.getElementById('create-form');
@@ -15,24 +16,24 @@ function initCreatePage() {
   }
 }
 
+/* ───────────────────────────────────────────── */
 /**
  * Handle form submit
  */
-function handleCreateAccount(e) {
+
+async function handleCreateAccount(e) {
   e.preventDefault();
 
-  // Get inputs
+  //clearErrors?.(); // optional if you have global helper
+
   const username = document.getElementById('username').value.trim();
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value.trim();
   const isAdmin = document.getElementById('is-admin').checked;
 
-  // 🔴 Validation
-  // if (!username || !email || !password) {
-  //   alert('Please fill all fields');
-  //   return;
-  // }
+  let valid = true;
 
+  /* ── Validation ── */
   if (!username) {
     showFieldError('username', 'Username is required.');
     valid = false;
@@ -57,45 +58,47 @@ function handleCreateAccount(e) {
     valid = false;
   }
 
-   /*  Username uniqueness */
-  if (getUserByUsername(username)) {
+  if (!valid) return;
+
+  /* ── Username uniqueness (async-safe) ── */
+  const existingUser = await getUserByUsername(username);
+
+  if (existingUser) {
     showFieldError('username', 'That username is already taken.');
     return;
   }
 
-  // Create new user object
+  /* ── Create user ── */
   const newUser = {
     id: 'u_' + (getUsersNumber() + 1).toString().padStart(3, '0'),
-    username: username,
-    email: email,
-    password: password,
-    isAdmin: isAdmin,
+    username,
+    email,
+    password,
+    isAdmin,
     borrowedBooks: [],
     createdAt: new Date().toISOString().split('T')[0]
   };
 
-  // Save using storage.js
-  addUser(newUser);
+  /* ── Save user ── */
+  await addUser(newUser); 
 
-  // Optional: success message
   showToast('User created successfully', 'success');
 
-
-  // Redirect back to users page
-  window.location.href = 'users.html';
-
-
-  
+  /* ── Redirect ── */
+  setTimeout(() => {
+    window.location.href = 'users.html';
+  }, 800);
 }
 
-
+/* ───────────────────────────────────────────── */
+/**
+ * Field error helper
+ */
 function showFieldError(fieldId, message) {
   const input = document.getElementById(fieldId);
   const error = document.getElementById(fieldId + '-error');
 
-  if (input) {
-    input.classList.add('error');
-  }
+  if (input) input.classList.add('error');
 
   if (error) {
     error.textContent = message;

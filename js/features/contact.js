@@ -1,69 +1,110 @@
 /* ============================================================
-   contact.js — Logic for pages/contact.html
-   Dependencies (loaded before this file):
-     - storage.js  → getCurrentUser() (used by navbar.js)
-     - navbar.js   → renders nav state, provides showToast()
-   Note: when auth.js is complete, the contact handler can
-         be migrated there. This file stays as the entry point
-         for contact.html either way.
-   ============================================================ */
+   contact.js 
+============================================================ */
 
-/* ── Toast helper ──
-   navbar.js is expected to expose showToast() globally.
-   This fallback fires only if navbar.js hasn't loaded yet. */
-function _contactToast(message, type) {
-  type = type || 'default';
+/* ── Toast helper ── */
+function _contactToast(message, type = 'default') {
+
   if (typeof showToast === 'function') {
     return showToast(message, type);
   }
-  var toast = document.getElementById('toast');
+
+  const toast = document.getElementById('toast');
   if (!toast) return;
+
   toast.textContent = message;
-  toast.className = 'toast toast--' + type + ' show';
-  setTimeout(function () { toast.className = 'toast'; }, 4000);
+  toast.className = `toast toast--${type} show`;
+
+  setTimeout(() => {
+    toast.className = 'toast';
+  }, 4000);
 }
 
-/* ── Validate one field — returns true if valid ── */
+/* ── Validate field ── */
 function validateContactField(id, errorId, check, message) {
-  var input = document.getElementById(id);
-  var error = document.getElementById(errorId);
+
+  const input = document.getElementById(id);
+  const error = document.getElementById(errorId);
+
   if (!input) return true;
-  if (!check(input.value.trim())) {
+
+  const value = input.value.trim();
+
+  if (!check(value)) {
     input.classList.add('error');
-    if (error) { error.textContent = message; error.classList.add('visible'); }
+    if (error) {
+      error.textContent = message;
+      error.classList.add('visible');
+    }
     return false;
   }
+
   input.classList.remove('error');
   if (error) error.classList.remove('visible');
+
   return true;
 }
 
-/* ── Clear all field errors ── */
+/* ── Clear errors ── */
 function clearContactErrors() {
-  var form = document.getElementById('contact-form');
+
+  const form = document.getElementById('contact-form');
   if (!form) return;
-  form.querySelectorAll('.form-input').forEach(function (el) { el.classList.remove('error'); });
-  form.querySelectorAll('.form-error').forEach(function (el) { el.classList.remove('visible'); });
+
+  form.querySelectorAll('.form-input').forEach(el =>
+    el.classList.remove('error')
+  );
+
+  form.querySelectorAll('.form-error').forEach(el => {
+    el.classList.remove('visible');
+  });
 }
 
-/* ── Main submit handler ── */
+/* ── Submit handler ── */
 function handleContactSubmit(event) {
+
   event.preventDefault();
   clearContactErrors();
 
-  var nameOk    = validateContactField('contact-name',    'contact-name-error',    function (v) { return v.length > 0; },       'Please enter your name.');
-  var emailOk   = validateContactField('contact-email',   'contact-email-error',   function (v) { return v.includes('@'); },    'Please enter a valid email.');
-  var subjectOk = validateContactField('contact-subject', 'contact-subject-error', function (v) { return v.length > 0; },       'Please select a topic.');
-  var messageOk = validateContactField('contact-message', 'contact-message-error', function (v) { return v.length >= 10; },     'Message must be at least 10 characters.');
+  const nameOk = validateContactField(
+    'contact-name',
+    'contact-name-error',
+    v => v.length > 0,
+    'Please enter your name.'
+  );
+
+  const emailOk = validateContactField(
+    'contact-email',
+    'contact-email-error',
+    v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+    'Please enter a valid email.'
+  );
+
+  const subjectOk = validateContactField(
+    'contact-subject',
+    'contact-subject-error',
+    v => v.length > 0,
+    'Please select a topic.'
+  );
+
+  const messageOk = validateContactField(
+    'contact-message',
+    'contact-message-error',
+    v => v.length >= 10,
+    'Message must be at least 10 characters.'
+  );
 
   if (!nameOk || !emailOk || !subjectOk || !messageOk) return;
 
   _contactToast("Message sent! We'll reply within 24 hours.", 'success');
+
   event.target.reset();
 }
 
-/* ── Attach listener ── */
-document.addEventListener('DOMContentLoaded', function () {
-  var form = document.getElementById('contact-form');
-  if (form) form.addEventListener('submit', handleContactSubmit);
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('contact-form');
+  if (form) {
+    form.addEventListener('submit', handleContactSubmit);
+  }
 });

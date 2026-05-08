@@ -1,8 +1,6 @@
 /* ============================================================
-   DevVerse — js/features/book-detail.js
-   Page: pages/user/book-detail.html
-   Depends on: storage.js, navbar.js (loaded before this file)
-   ============================================================ */
+   book-detail.js 
+============================================================ */
 
 requireAuth(false);
 
@@ -10,200 +8,397 @@ let currentBook = null;
 let currentUser = null;
 
 
-/* ============================================================
-   INIT — called from HTML after scripts load
-   ============================================================ */
-function initPage() {
+document.addEventListener('DOMContentLoaded', initPage);
+
+async function initPage() {
+
   const params = new URLSearchParams(window.location.search);
-  const bookId  = params.get('id');
+
+  
+  const bookId = params.get('id');
 
   if (!bookId) {
-    window.location.href = '../../pages/user/browse.html';
+
+    window.location.href =
+      '../../pages/user/browse.html';
+
     return;
   }
 
-  const book = getBookById(bookId);
-  const user  = getCurrentUser();
+  try {
 
-  if (!book) {
-    window.location.href = '../../pages/user/browse.html';
-    return;
+    const book = await getBookById(bookId);
+
+    const user = getCurrentUser();
+
+    if (!book) {
+
+      window.location.href =
+        '../../pages/user/browse.html';
+
+      return;
+    }
+
+    currentBook = book;
+    currentUser = user;
+
+    populatePage(book);
+
+    updateBorrowedUI(book, user);
+
+    setupButtons();
+
+  } catch (error) {
+
+    console.error(error);
+
+    showToast(
+      'Failed to load book.',
+      'danger'
+    );
   }
-
-  currentBook = book;
-  currentUser = user;
-
-  populatePage(book);
-  updateBorrowedUI(book, user);
-
-  document.getElementById('borrow-btn').addEventListener('click', function () {
-    handleBorrow(currentBook, currentUser);
-  });
-
-  document.getElementById('return-btn').addEventListener('click', openReturnDialog);
-  document.getElementById('read-btn').addEventListener('click', openReadDialog);
 }
 
 
 /* ============================================================
-   POPULATE PAGE — fill all text/image fields
-   ============================================================ */
+   SETUP BUTTONS
+============================================================ */
+
+function setupButtons() {
+
+  const borrowBtn = document.getElementById('borrow-btn');
+  const returnBtn = document.getElementById('return-btn');
+  const readBtn   = document.getElementById('read-btn');
+
+  if (borrowBtn) {
+
+    borrowBtn.addEventListener('click', function () {
+
+      handleBorrow(currentBook, currentUser);
+    });
+  }
+
+  if (returnBtn) {
+
+    returnBtn.addEventListener('click', function () {
+
+      openReturnDialog();
+    });
+  }
+
+  if (readBtn) {
+
+    readBtn.addEventListener('click', function () {
+
+      openReadDialog();
+    });
+  }
+}
+
+
+/* ============================================================
+   POPULATE PAGE
+============================================================ */
+
 function populatePage(book) {
+
   document.title = book.name + ' — DevVerse';
 
-  document.getElementById('book-title').textContent       = book.name;
-  document.getElementById('book-author').textContent      = book.author;
-  document.getElementById('book-category').textContent    = book.category;
-  document.getElementById('book-description').textContent = book.description;
+  document.getElementById('book-title').textContent =
+    book.name || '';
 
-  const img      = document.getElementById('book-img');
-  const fallback = document.querySelector('.detail-fallback');
+  document.getElementById('book-author').textContent =
+    book.author || '';
+
+  document.getElementById('book-category').textContent =
+    book.category || '';
+
+  document.getElementById('book-description').textContent =
+    book.description || '';
+
+  const img =
+    document.getElementById('book-img');
+
+  const fallback =
+    document.querySelector('.detail-fallback');
+
+  if (!img) return;
 
   img.src = book.image || '';
 
   img.addEventListener('error', function () {
-    img.style.display     = 'none';
-    fallback.style.display = 'flex';
+
+    img.style.display = 'none';
+
+    if (fallback) {
+      fallback.style.display = 'flex';
+    }
   });
 
   if (!book.image) {
-    img.style.display     = 'none';
-    fallback.style.display = 'flex';
+
+    img.style.display = 'none';
+
+    if (fallback) {
+      fallback.style.display = 'flex';
+    }
   }
 }
 
 
 /* ============================================================
-   BORROW
-   ============================================================ */
-function handleBorrow(book, user) {
+   BORROW BOOK
+============================================================ */
+
+async function handleBorrow(book, user) {
+
   if (!user) {
-    window.location.href = '../../pages/auth/login.html';
+
+    window.location.href =
+      '../../pages/auth/login.html';
+
     return;
   }
 
-  const today = new Date().toISOString().split('T')[0];
+  try {
 
-  book.isAvailable = false;
-  book.borrowedBy  = user.id;
-  book.borrowedAt  = today;
-  updateBook(book);
+    const today =
+      new Date().toISOString().split('T')[0];
 
-  user.borrowedBooks.push({ bookId: book.id, borrowedAt: today });
-  updateUser(user);
-  setCurrentUser(user);
+    /*
+      IMPORTANT
 
-  showToast('Book borrowed! Enjoy reading.', 'success');
-  updateBorrowedUI(book, user);
-}
+      book._id = MongoDB id
+      user._id = MongoDB id
 
+      Backend stores:
+      borrowedBy = user.id (u_001)
+    */
 
-/* ============================================================
-   UI STATE — update badge + buttons based on book state
-   ============================================================ */
-function updateBorrowedUI(book, user) {
-  const borrowBtn    = document.getElementById('borrow-btn');
-  const badge        = document.getElementById('availability-badge');
-  const returnBtn    = document.getElementById('return-btn');
-  const ownedActions = document.getElementById('owned-actions');
+    const updatedBook = await borrowBook(
+      book._id,
+      user._id,
+      today
+    );
 
-  if (book.isAvailable) {
-    /* ── AVAILABLE ─────────────────────────────────────── */
-    borrowBtn.style.display    = 'inline-block';
-    borrowBtn.disabled          = false;
-    borrowBtn.textContent       = 'Borrow this Book';
-    borrowBtn.className         = 'available-button';
-    ownedActions.style.display  = 'none';
+    currentBook = updatedBook;
 
-    badge.className  = 'badge badge-available';
-    badge.textContent = 'AVAILABLE';
+    /*
+      Session already updated in storage.js
+    */
 
-  } else if (book.borrowedBy === user.id) {
-    /* ── OWNED BY THIS USER ────────────────────────────── */
-    borrowBtn.style.display    = 'none';
-    borrowBtn.disabled          = true;
-    ownedActions.style.display  = 'flex';
+    currentUser = getCurrentUser();
 
-    badge.className  = 'badge badge-owned';
-    badge.textContent = 'OWNED';
+    updateBorrowedUI(
+      currentBook,
+      currentUser
+    );
 
-  } else {
-    /* ── BORROWED BY SOMEONE ELSE ──────────────────────── */
-    borrowBtn.style.display    = 'inline-block';
-    borrowBtn.disabled          = true;
-    borrowBtn.textContent       = 'Already Borrowed';
-    borrowBtn.className         = 'unavailable-button';
-    ownedActions.style.display  = 'none';
+    showToast(
+      'Book borrowed successfully.',
+      'success'
+    );
 
-    badge.className  = 'badge badge-borrowed';
-    badge.textContent = 'BORROWED';
+  } catch (error) {
+
+    console.error(error);
+
+    showToast(
+      error.message || 'Failed to borrow book.',
+      'danger'
+    );
   }
 }
 
 
 /* ============================================================
-   RETURN DIALOG
-   ============================================================ */
+   RETURN BOOK
+============================================================ */
+
+async function handleReturn(book, user) {
+  try {
+    const updatedBook = await returnBook(book._id, user._id);
+
+    currentBook = updatedBook;
+    currentUser = getCurrentUser();
+
+    showToast('Book returned successfully.', 'success');
+    updateBorrowedUI(currentBook, currentUser);
+
+  } catch (error) {
+    console.error(error);
+    showToast('Failed to return book.', 'danger');
+  }
+}
+
+
+/* ============================================================
+   RETURN DIALOG CONTROL (USES delete-overlay)
+============================================================ */
+
 function openReturnDialog() {
   const overlay = document.getElementById('delete-overlay');
-  if (overlay) overlay.classList.add('open');
+  if (overlay) overlay.style.display = 'flex';
 }
+
 
 function closeConfirmDialog() {
   const overlay = document.getElementById('delete-overlay');
-  if (overlay) overlay.classList.remove('open');
+  if (overlay) overlay.style.display = 'none';
 }
 
-function confirmReturn() {
-  closeConfirmDialog();
-  if (!currentBook || !currentUser) return;
-  handleReturn(currentBook, currentUser);
-}
 
-function handleReturn(book, user) {
-  book.isAvailable = true;
-  book.borrowedBy  = null;
-  book.borrowedAt  = null;
-  updateBook(book);
+async function confirmReturn() {
+  try {
+    await handleReturn(currentBook, currentUser);
 
-  user.borrowedBooks = user.borrowedBooks.filter(function (item) {
-    return item.bookId !== book.id;
-  });
-  updateUser(user);
-  setCurrentUser(user);
+    closeConfirmDialog();
 
-  showToast('Book returned! Hope you enjoyed it.', 'success');
-  updateBorrowedUI(book, user);
+  } catch (error) {
+    console.error(error);
+    showToast('Failed to return book.', 'danger');
+  }
 }
 
 
 /* ============================================================
-   READ DIALOG — "Not implemented yet"
-   ============================================================ */
+   UI STATE
+============================================================ */
+
+function updateBorrowedUI(book, user) {
+
+  const borrowBtn =
+    document.getElementById('borrow-btn');
+
+  const badge =
+    document.getElementById('availability-badge');
+
+  const ownedActions =
+    document.getElementById('owned-actions');
+
+  if (!borrowBtn || !badge || !ownedActions) {
+    return;
+  }
+
+  /*
+    IMPORTANT
+
+    borrowedBy now stores:
+    user.id (u_001)
+
+    NOT user._id
+  */
+
+  const isOwner =
+    user &&
+    (
+      book.borrowedBy === user.id ||
+      book.borrowedBy === user._id
+    );
+
+  /* ================= AVAILABLE ================= */
+
+  if (book.isAvailable) {
+
+    borrowBtn.style.display = 'inline-block';
+
+    borrowBtn.disabled = false;
+
+    borrowBtn.textContent =
+      'Borrow this Book';
+
+    borrowBtn.className =
+      'available-button';
+
+    ownedActions.style.display = 'none';
+
+    badge.className =
+      'badge badge-available';
+
+    badge.textContent =
+      'AVAILABLE';
+
+    return;
+  }
+
+  /* ================= OWNED ================= */
+
+  if (isOwner) {
+
+    borrowBtn.style.display = 'none';
+
+    ownedActions.style.display = 'flex';
+
+    badge.className =
+      'badge badge-owned';
+
+    badge.textContent =
+      'OWNED';
+
+    return;
+  }
+
+  /* ================= BORROWED ================= */
+
+  borrowBtn.style.display = 'inline-block';
+
+  borrowBtn.disabled = true;
+
+  borrowBtn.textContent =
+    'Already Borrowed';
+
+  borrowBtn.className =
+    'unavailable-button';
+
+  ownedActions.style.display = 'none';
+
+  badge.className =
+    'badge badge-borrowed';
+
+  badge.textContent =
+    'BORROWED';
+}
+
+
+/* ============================================================
+   READ DIALOG
+============================================================ */
+
 function openReadDialog() {
-  const overlay = document.getElementById('read-overlay');
-  if (overlay) overlay.classList.add('open');
+
+  const dialog = document.getElementById('read-overlay');
+
+  if (!dialog) {
+    console.warn('Read dialog not found in HTML');
+    return;
+  }
+
+  dialog.classList.add('open');
+
+  const closeBtn = dialog.querySelector('.close-dialog');
+  const okBtn = dialog.querySelector('.ok-btn');
+
+  if (closeBtn) {
+    closeBtn.onclick = closeReadDialog;
+  }
+
+  if (okBtn) {
+    okBtn.onclick = closeReadDialog;
+  }
+
+  // close when clicking outside dialog content
+  dialog.onclick = function (e) {
+    if (e.target === dialog) {
+      closeReadDialog();
+    }
+  };
 }
 
 function closeReadDialog() {
-  const overlay = document.getElementById('read-overlay');
-  if (overlay) overlay.classList.remove('open');
+
+  const dialog = document.getElementById('read-overlay');
+
+  if (!dialog) return;
+
+  dialog.classList.remove('open');
 }
-
-/* Close read dialog on overlay click */
-document.addEventListener('DOMContentLoaded', function () {
-  const readOverlay = document.getElementById('read-overlay');
-  if (readOverlay) {
-    readOverlay.addEventListener('click', function (e) {
-      if (e.target === readOverlay) closeReadDialog();
-    });
-  }
-
-  /* Close on Escape */
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') {
-      closeConfirmDialog();
-      closeReadDialog();
-    }
-  });
-});

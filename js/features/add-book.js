@@ -1,56 +1,62 @@
+async function initPage() {
 
-function initPage() {
- 
-     requireAuth(true);
+    requireAuth(true);
 
-   
     const form = document.getElementById('book-form');
     form.addEventListener('submit', handleAddBook);
 }
 
-function handleAddBook(event) {
+
+/* ============================================================
+   ADD BOOK
+============================================================ */
+
+async function handleAddBook(event) {
     event.preventDefault();
 
-  
     if (!validateForm()) {
-        return; 
+        return;
     }
-
 
     const name = document.getElementById('book-name').value.trim();
     const author = document.getElementById('author').value.trim();
     const category = document.getElementById('category').value;
     const description = document.getElementById('description').value.trim();
-    const allBooks = getBooks();
-    const nextNumber = allBooks.length + 1; // as we start with b_001, we add 1 to get the next ID number
-    const idFormat = 'b_' + nextNumber.toString().padStart(3, '0');
 
- 
     const newBook = {
-        
-        id: idFormat, 
-        name: name,
-        author: author,
-        category: category,
-        description: description,
+        name,
+        author,
+        category,
+        description,
         isAvailable: true,
         borrowedBy: null,
         borrowedAt: null
     };
 
-    
-    addBook(newBook);
+    try {
+        await addBook(newBook);
 
-    
-    if (typeof showToast === 'function') {
-        showToast('Book published successfully!', 'success');
+        if (typeof showToast === 'function') {
+            showToast('Book published successfully!', 'success');
+        }
+
+        setTimeout(() => {
+            window.location.href = 'dashboard.html';
+        }, 1500);
+
+    } catch (error) {
+        console.error(error);
+
+        if (typeof showToast === 'function') {
+            showToast('Failed to publish book', 'danger');
+        }
     }
-
-
-    setTimeout(() => {
-        window.location.href = 'dashboard.html';
-    }, 1500);
 }
+
+
+/* ============================================================
+   VALIDATION (UNCHANGED LOGIC)
+============================================================ */
 
 function validateForm() {
     clearErrors();
@@ -83,6 +89,11 @@ function validateForm() {
     return isValid;
 }
 
+
+/* ============================================================
+   ERROR HANDLING (UNCHANGED)
+============================================================ */
+
 function showFieldError(fieldId, message) {
     const errorSpan = document.getElementById(fieldId);
     if (errorSpan) {
@@ -91,13 +102,18 @@ function showFieldError(fieldId, message) {
     }
 }
 
-
 function clearErrors() {
     const errors = document.querySelectorAll('.form-error');
+
     errors.forEach(error => {
         error.textContent = '';
         error.style.display = 'none';
     });
 }
+
+
+/* ============================================================
+   INIT
+============================================================ */
 
 document.addEventListener('DOMContentLoaded', initPage);
