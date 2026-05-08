@@ -1,132 +1,266 @@
+/* ============================================================
+   browse.js 
+============================================================ */
+
+document.addEventListener('DOMContentLoaded', initPage);
+
 async function initPage() {
 
   requireAuth(false);
 
-  const books = await getBooks();
-  displayBooks(books);
+  try {
 
-  document.getElementById('search-input')
-    .addEventListener('input', filterAndSearchBooks);
+    const books = await getBooks();
+    displayBooks(books);
 
-  document.querySelectorAll('.filter-pill').forEach(button => {
-    button.addEventListener('click', () => {
+    const searchInput = document.getElementById('search-input');
 
-      document.querySelectorAll('.filter-pill')
-        .forEach(btn => btn.classList.remove('active'));
+    if (searchInput) {
+      searchInput.addEventListener('input', filterAndSearchBooks);
+    }
 
-      button.classList.add('active');
-      filterAndSearchBooks();
+    document.querySelectorAll('.filter-pill').forEach(button => {
+
+      button.addEventListener('click', function () {
+
+        document.querySelectorAll('.filter-pill')
+          .forEach(btn => btn.classList.remove('active'));
+
+        button.classList.add('active');
+
+        filterAndSearchBooks();
+      });
     });
-  });
+
+  } catch (error) {
+
+    console.error(error);
+
+    const grid = document.getElementById('books-grid');
+
+    if (grid) {
+      grid.innerHTML = `
+        <p class="no-books">
+          Failed to load books.
+        </p>
+      `;
+    }
+  }
 }
 
 
 /* ============================================================
-   DISPLAY BOOKS (FIXED SAFETY + SMALL BUG FIXES)
+   DISPLAY BOOKS
 ============================================================ */
 
 function displayBooks(filteredBooks) {
 
-  const user = getCurrentUser(); // may be null (safe now)
+  const user = getCurrentUser();
 
   const grid = document.getElementById('books-grid');
+
+  if (!grid) return;
+
   grid.innerHTML = '';
 
-  if (filteredBooks.length === 0) {
-    grid.innerHTML = `<p class="no-books">No books found.</p>`;
+  if (!filteredBooks || filteredBooks.length === 0) {
+
+    grid.innerHTML = `
+      <p class="no-books">
+        No books found.
+      </p>
+    `;
+
     return;
   }
 
   filteredBooks.forEach(book => {
 
-    const isOwner = user && book.borrowedBy === user.id;
+    /*
+      IMPORTANT
+
+      book.borrowedBy now stores:
+      user.id (u_001)
+
+      NOT MongoDB _id
+    */
+
+    const isOwner =
+      user &&
+      (
+        book.borrowedBy === user.id ||
+        book.borrowedBy === user._id
+      );
 
     const statusClass =
       book.isAvailable
         ? 'book-card__avail--available'
-        : (isOwner ? 'book-card__avail--owned' : 'book-card__avail--borrowed');
+        : (isOwner
+            ? 'book-card__avail--owned'
+            : 'book-card__avail--borrowed');
 
     const statusText =
       book.isAvailable
         ? 'AVAILABLE'
-        : (isOwner ? 'OWNED' : 'BORROWED');
+        : (isOwner
+            ? 'OWNED'
+            : 'BORROWED');
+
+    /*
+      IMPORTANT
+
+      book detail page now uses MongoDB _id
+      because backend route needs _id
+    */
 
     const bookCard = `
-      <a href="../../pages/user/book-detail.html?id=${book.id}" class="book-card">
+      <a href="../../pages/user/book-detail.html?id=${book._id}" class="book-card">
+
         <div class="book-card__cover">
+
           <div class="book-card__image-wrapper">
-            <img class="book-img" src="${book.image || ''}">
-            <div class="book-card__fallback">❤</div>
+
+            <img
+              class="book-img"
+              src="${book.image || ''}"
+              alt="${escapeHTML(book.name)}"
+            >
+
+            <div class="book-card__fallback">
+              ❤
+            </div>
 
             <span class="book-card__avail ${statusClass}">
               ${statusText}
             </span>
+
           </div>
+
         </div>
 
         <div class="book-card__body">
-          <p class="book-card__category">${book.category.toUpperCase()}</p>
-          <h3 class="book-card__title">${book.name}</h3>
-          <p class="book-card__author">${book.author}</p>
+
+          <p class="book-card__category">
+            ${escapeHTML((book.category || '').toUpperCase())}
+          </p>
+
+          <h3 class="book-card__title">
+            ${escapeHTML(book.name)}
+          </h3>
+
+          <p class="book-card__author">
+            ${escapeHTML(book.author)}
+          </p>
+
         </div>
+
       </a>
     `;
 
     grid.innerHTML += bookCard;
   });
 
-  /* ============================================================
-     IMAGE FALLBACK (SAFE)
-  ============================================================ */
+  setupImageFallbacks();
+}
+
+
+/* ============================================================
+   IMAGE FALLBACKS
+============================================================ */
+
+function setupImageFallbacks() {
 
   document.querySelectorAll('.book-img').forEach(img => {
 
     img.addEventListener('error', function () {
+
       this.style.display = 'none';
-      const fallback = this.parentElement.querySelector('.book-card__fallback');
-      if (fallback) fallback.style.display = 'flex';
+
+      const fallback =
+        this.parentElement.querySelector('.book-card__fallback');
+
+      if (fallback) {
+        fallback.style.display = 'flex';
+      }
     });
 
     if (!img.getAttribute('src')) {
+
       img.style.display = 'none';
-      const fallback = img.parentElement.querySelector('.book-card__fallback');
-      if (fallback) fallback.style.display = 'flex';
+
+      const fallback =
+        img.parentElement.querySelector('.book-card__fallback');
+
+      if (fallback) {
+        fallback.style.display = 'flex';
+      }
     }
   });
 }
 
 
 /* ============================================================
-   SEARCH + FILTER (OPTIMIZED)
+   SEARCH + FILTER
 ============================================================ */
 
 async function filterAndSearchBooks() {
 
-  const searchInput = document.getElementById('search-input')
-    .value.toLowerCase();
+  try {
 
-  const activeCategory =
-    document.querySelector('.filter-pill.active')?.id || 'All';
+    const searchInput =
+      document.getElementById('search-input')
+        .value
+        .toLowerCase();
 
-  let books = await getBooks();
+    const activeCategory =
+      document.querySelector('.filter-pill.active')?.id || 'All';
 
-  if (activeCategory !== 'All') {
-    books = books.filter(book => book.category === activeCategory);
+    let books = await getBooks();
+
+    if (activeCategory !== 'All') {
+
+      books = books.filter(book =>
+        book.category === activeCategory
+      );
+    }
+
+    if (searchInput) {
+
+      books = books.filter(book =>
+
+        (book.name || '')
+          .toLowerCase()
+          .includes(searchInput)
+
+        ||
+
+        (book.author || '')
+          .toLowerCase()
+          .includes(searchInput)
+      );
+    }
+
+    displayBooks(books);
+
+  } catch (error) {
+
+    console.error(error);
   }
-
-  if (searchInput) {
-    books = books.filter(book =>
-      book.name.toLowerCase().includes(searchInput) ||
-      book.author.toLowerCase().includes(searchInput)
-    );
-  }
-
-  displayBooks(books);
 }
 
 
 /* ============================================================
-   INIT SAFETY
+   HELPERS
 ============================================================ */
 
-document.addEventListener('DOMContentLoaded', initPage);
+function escapeHTML(str) {
+
+  if (!str) return '';
+
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
