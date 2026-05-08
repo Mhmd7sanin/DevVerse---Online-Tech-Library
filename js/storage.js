@@ -1,3 +1,5 @@
+// storage.js
+
 const API_BASE = "http://127.0.0.1:8000/api";
 
 const SESSION_KEY = "dv_current_user";
@@ -36,20 +38,111 @@ async function _api(method, path, body = null) {
 // LOCAL STORAGE SESSION
 // ======================================
 
+
 function setCurrentUser(user) {
+
+    if (!user) return;
+
+    /*
+      IMPORTANT
+
+      user.id must stay:
+      u_001
+
+      user._id:
+      MongoDB ObjectId string
+    */
+
+    const normalizedUser = {
+        ...user,
+
+        id: user.id || "",
+
+        _id: user._id || user.id
+    };
 
     localStorage.setItem(
         SESSION_KEY,
-        JSON.stringify(user)
+        JSON.stringify(normalizedUser)
     );
 }
 
 
 function getCurrentUser() {
 
-    const user = localStorage.getItem(SESSION_KEY);
+    const user = localStorage.getItem(
+        SESSION_KEY
+    );
 
-    return user ? JSON.parse(user) : null;
+    if (!user) {
+        return null;
+    }
+
+    try {
+
+        const parsed = JSON.parse(user);
+
+        /*
+          Safety normalization
+        */
+
+        return {
+            ...parsed,
+
+            id: parsed.id || "",
+
+            _id: parsed._id || parsed.id
+        };
+
+    } catch {
+
+        return null;
+    }
+}
+
+async function refreshCurrentUser() {
+
+    const currentUser = getCurrentUser();
+
+    if (!currentUser) {
+        return null;
+    }
+
+    try {
+
+        /*
+          Always refresh from server
+          using MongoDB _id
+        */
+
+        const freshUser = await getUserById(
+            currentUser._id
+        );
+
+        if (freshUser) {
+
+            setCurrentUser(freshUser);
+
+            return freshUser;
+        }
+
+        return currentUser;
+
+    } catch (error) {
+
+        console.error(
+            'Failed to refresh current user:',
+            error
+        );
+
+        return currentUser;
+    }
+}
+
+
+function clearCurrentUser() {
+
+    localStorage.removeItem(SESSION_KEY);
 }
 
 
@@ -106,7 +199,7 @@ async function login(username, password) {
 
 function logout() {
 
-    removeCurrentUser();
+    clearCurrentUser();
 }
 
 
@@ -126,15 +219,16 @@ async function getBooks() {
 
 
 async function getBookById(bookId) {
-    // bookId can be MongoDB _id (hex string) OR custom id (b_001)
-    // The URL route uses MongoDB _id, so if it looks like a custom id,
-    // we fetch all books and find by custom id instead.
 
+    // Support custom id like b_001
     if (bookId && bookId.startsWith("b_")) {
+
         const books = await getBooks();
-        return books.find(b => b.id === bookId) || null;
+
+        return books.find(book => book.id === bookId) || null;
     }
 
+    // MongoDB _id
     const data = await _api(
         "GET",
         `/books/${bookId}/`
@@ -158,12 +252,7 @@ async function addBook(bookData) {
 
 async function updateBook(updatedBook) {
 
-    // Always use MongoDB _id for the URL
-    const bookId = updatedBook._id || updatedBook.id;
-
-    // If the id looks like a custom id (b_001), we need the _id instead
-    // In this case updatedBook should always have _id from the API response
-    const mongoId = updatedBook._id || bookId;
+    const mongoId = updatedBook._id || updatedBook.id;
 
     const data = await _api(
         "PUT",
@@ -212,9 +301,30 @@ async function getUsers() {
 
 async function getUserById(userId) {
 
+    // Support custom id like u_001
+    if (userId && userId.startsWith("u_")) {
+
+        const users = await getUsers();
+
+        return users.find(user => user.customId === userId) || null;
+    }
+
+    // MongoDB _id
     const data = await _api(
         "GET",
         `/users/${userId}/`
+    );
+
+    return data.user;
+}
+
+
+async function addUser(userData) {
+
+    const data = await _api(
+        "POST",
+        "/users/create/",
+        userData
     );
 
     return data.user;
@@ -231,12 +341,14 @@ async function updateUser(updatedUser) {
         updatedUser
     );
 
-    // Update local storage if current user updated himself
     const currentUser = getCurrentUser();
 
     if (
         currentUser &&
-        (currentUser.id === updatedUser.id || currentUser._id === updatedUser._id)
+        (
+            currentUser._id === updatedUser._id ||
+            currentUser.id === updatedUser.id
+        )
     ) {
         setCurrentUser(data.user);
     }
@@ -256,9 +368,12 @@ async function deleteUser(userId) {
 
 async function getUsersNumber() {
 
-    const users = await getUsers();
+    const data = await _api(
+        "GET",
+        "/users/count/"
+    );
 
-    return users.length;
+    return data.count || 0;
 }
 
 
@@ -277,22 +392,24 @@ async function getUserByUsername(username) {
 // ======================================
 
 async function borrowBook(bookMongoId, userMongoId, borrowedAt = "") {
-    // bookMongoId  = book._id  (MongoDB hex, used in URL)
-    // userMongoId  = user._id  (MongoDB hex, sent in body)
 
     const data = await _api(
         "POST",
         `/books/${bookMongoId}/borrow/`,
         {
             user_id: userMongoId,
-            borrowedAt: borrowedAt
+            borrowedAt
         }
     );
 
-    // Server returns updated user — sync session
     if (data.user) {
+
         const currentUser = getCurrentUser();
-        if (currentUser && currentUser._id === userMongoId) {
+
+        if (
+            currentUser &&
+            currentUser._id === userMongoId
+        ) {
             setCurrentUser(data.user);
         }
     }
@@ -302,8 +419,6 @@ async function borrowBook(bookMongoId, userMongoId, borrowedAt = "") {
 
 
 async function returnBook(bookMongoId, userMongoId) {
-    // bookMongoId  = book._id  (MongoDB hex, used in URL)
-    // userMongoId  = user._id  (MongoDB hex, sent in body)
 
     const data = await _api(
         "POST",
@@ -313,10 +428,14 @@ async function returnBook(bookMongoId, userMongoId) {
         }
     );
 
-    // Server returns updated user — sync session
     if (data.user) {
+
         const currentUser = getCurrentUser();
-        if (currentUser && currentUser._id === userMongoId) {
+
+        if (
+            currentUser &&
+            currentUser._id === userMongoId
+        ) {
             setCurrentUser(data.user);
         }
     }
@@ -330,25 +449,33 @@ async function returnBook(bookMongoId, userMongoId) {
 // ======================================
 
 async function getBorrowedBooks(userId) {
-    // userId = MongoDB _id of the user
 
     const user = await getUserById(userId);
 
-    if (!user || !user.borrowedBooks || !user.borrowedBooks.length) {
+    if (
+        !user ||
+        !user.borrowedBooks ||
+        !user.borrowedBooks.length
+    ) {
         return [];
     }
 
-    // borrowedBooks is now [{bookId: "b_001", borrowedAt: "..."}, ...]
     const allBooks = await getBooks();
+
     const books = [];
 
     for (const entry of user.borrowedBooks) {
-        const bookCustomId = typeof entry === "object" ? entry.bookId : entry;
-        const book = allBooks.find(b => b.id === bookCustomId);
+
+        const bookCustomId = entry.bookId;
+
+        const book = allBooks.find(
+            b => b.id === bookCustomId
+        );
+
         if (book) {
             books.push({
                 ...book,
-                borrowedAt: typeof entry === "object" ? entry.borrowedAt : null
+                borrowedAt: entry.borrowedAt
             });
         }
     }
@@ -357,14 +484,19 @@ async function getBorrowedBooks(userId) {
 }
 
 
-// --- BASE URL ---
+// ======================================
+// BASE URL
+// ======================================
+
 const getBase = () => {
-  const { origin, pathname } = window.location;
-  const parts = pathname.split('/');
+    const { origin, pathname } = window.location;
+    const parts = pathname.split('/');
 
-  if (origin.includes("github.io")) {
-    return `${origin}/${parts[1]}/`;
-  }
+    // GitHub Pages
+    if (origin.includes("github.io")) {
+        return `${origin}/${parts[1]}/`;
+    }
 
-  return `${origin}/`;
+    // Local / normal hosting
+    return `${origin}/`;
 };
