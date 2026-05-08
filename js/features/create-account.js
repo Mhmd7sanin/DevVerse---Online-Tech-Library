@@ -21,17 +21,15 @@ function initCreatePage() {
 function handleCreateAccount(e) {
   e.preventDefault();
 
+  clearErrors();
+
   // Get inputs
   const username = document.getElementById('username').value.trim();
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value.trim();
   const isAdmin = document.getElementById('is-admin').checked;
 
-  // 🔴 Validation
-  // if (!username || !email || !password) {
-  //   alert('Please fill all fields');
-  //   return;
-  // }
+  let valid = true;
 
   if (!username) {
     showFieldError('username', 'Username is required.');
@@ -57,7 +55,9 @@ function handleCreateAccount(e) {
     valid = false;
   }
 
-   /*  Username uniqueness */
+  if (!valid) return;
+
+  /*  Username uniqueness */
   if (getUserByUsername(username)) {
     showFieldError('username', 'That username is already taken.');
     return;
@@ -101,4 +101,14 @@ function showFieldError(fieldId, message) {
     error.textContent = message;
     error.classList.add('visible');
   }
+}
+
+function clearErrors() {
+  document.querySelectorAll('.form-input.error').forEach(function (el) {
+    el.classList.remove('error');
+  });
+  document.querySelectorAll('.form-error.visible').forEach(function (el) {
+    el.classList.remove('visible');
+    el.textContent = '';
+  });
 }

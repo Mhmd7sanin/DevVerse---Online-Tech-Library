@@ -28,8 +28,6 @@ const usernameInput   = document.getElementById('edit-username');
 const emailInput      = document.getElementById('edit-email');
 const isAdminCheckbox = document.getElementById('edit-is-admin');
 const updateBtn       = document.getElementById('update-btn');
-const borrowedList    = document.getElementById('borrowed-list');
-const borrowedEmpty   = document.getElementById('borrowed-empty');
 
 
 /* ============================================================
@@ -98,6 +96,11 @@ updateBtn.addEventListener('click', function () {
   headingUsername.textContent = '@' + targetUser.username;
 
   showToast('User info updated successfully.', 'success');
+
+  /* Redirect back to users list after a short delay */
+  setTimeout(function () {
+    window.location.href = '../../pages/admin/users.html';
+  }, 1500);
 });
 
 
@@ -106,40 +109,44 @@ updateBtn.addEventListener('click', function () {
    ============================================================ */
 function renderBorrowedBooks() {
   const borrowed = targetUser.borrowedBooks || [];
+  const borrowedListEl = document.getElementById('borrowed-list');
+  const borrowedEmpty  = document.getElementById('borrowed-empty');
+  const tbody          = document.getElementById('borrowed-tbody');
 
   if (!borrowed.length) {
-    borrowedList.style.display  = 'none';
-    borrowedEmpty.style.display = 'block';
+    if (borrowedListEl)  borrowedListEl.style.display = 'none';
+    if (borrowedEmpty)   borrowedEmpty.style.display  = 'block';
     return;
   }
 
-  borrowedEmpty.style.display = 'none';
-  borrowedList.style.display  = 'flex';
+  if (borrowedEmpty)   borrowedEmpty.style.display  = 'none';
+  if (borrowedListEl)  borrowedListEl.style.display  = 'block';
 
-  borrowedList.innerHTML = borrowed.map(function (entry) {
+  tbody.innerHTML = borrowed.map(function (entry) {
     const book = getBookById(entry.bookId);
     if (!book) return '';
 
     const dateFormatted = formatDate(entry.borrowedAt);
 
     return `
-      <div class="eu-book-item" data-book-id="${book.id}">
-        <div class="eu-book-item__left">
-          <div class="eu-book-item__thumb">♡</div>
-          <div class="eu-book-item__info">
-            <p class="eu-book-item__title">${escapeHtml(book.name)}</p>
-            <p class="eu-book-item__meta">
-              ${escapeHtml(book.author)} · Borrowed ${dateFormatted}
-            </p>
+      <tr data-book-id="${book.id}">
+        <td>
+          <div class="eu-book-cell">
+            <div class="eu-book-thumb">♡</div>
+            <span class="eu-book-name">${escapeHtml(book.name)}</span>
           </div>
-        </div>
-        <button
-          class="eu-return-btn"
-          onclick="markAsReturned('${book.id}')"
-        >
-          Mark as Returned
-        </button>
-      </div>`;
+        </td>
+        <td class="eu-book-author">${escapeHtml(book.author)}</td>
+        <td class="eu-book-date">${dateFormatted}</td>
+        <td>
+          <button
+            class="eu-return-btn"
+            onclick="markAsReturned('${book.id}')"
+          >
+            Mark as Returned
+          </button>
+        </td>
+      </tr>`;
   }).join('');
 }
 

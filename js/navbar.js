@@ -257,7 +257,7 @@
 ================================================================ */
 
 function logoutUser() {
-  clearCurrentUser();
+  removeCurrentUser();
 
   const path = window.location.pathname;
 

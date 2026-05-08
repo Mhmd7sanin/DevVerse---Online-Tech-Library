@@ -1,12 +1,9 @@
 /* ============================================================
    DevVerse — js/features/auth.js
-   Handles: signup, login, redirects.
-   Used by: signup.html and login.html
-   Depends on: storage.js + navbar.js (loaded first)
    ============================================================ */
 
 
-/*  Redirect if already logged in  */
+/* Redirect if already logged in */
 redirectIfLoggedIn();
 
 
@@ -19,7 +16,7 @@ if (signupForm) {
   signupForm.addEventListener('submit', handleSignup);
 }
 
-function handleSignup(e) {
+async function handleSignup(e) {
   e.preventDefault();
   clearErrors();
 
@@ -28,7 +25,6 @@ function handleSignup(e) {
   const password = document.getElementById('password').value;
   const confirm  = document.getElementById('confirm').value;
 
-  /* Validation  */
   let valid = true;
 
   if (!username) {
@@ -65,33 +61,43 @@ function handleSignup(e) {
 
   if (!valid) return;
 
-  /*  Username uniqueness */
-  if (getUserByUsername(username)) {
+  /* Username uniqueness */
+  const existingUser = await getUserByUsername(username);
+
+  if (existingUser) {
     showFieldError('username', 'That username is already taken.');
     return;
   }
 
-  /*  Create user  */
   const today = new Date().toISOString().split('T')[0];
 
   const newUser = {
-    id:            'u_' + (getUsersNumber() + 1).toString().padStart(3, '0'),
-    username:      username,
-    email:         email,
-    password:      password,
-    isAdmin:       false,
+    username,
+    email,
+    password,
+    isAdmin: false,
     borrowedBooks: [],
-    createdAt:     today
+    createdAt: today
   };
 
-  addUser(newUser);
-  setCurrentUser(newUser);
+  try {
+    const result = await signup(newUser);
 
-  showToast('Account created! Welcome to DevVerse.', 'success');
+    if (!result.success) {
+      showToast(result.message, "error");
+      return;
+    }
 
-  setTimeout(function () {
-    window.location.href = '../../pages/user/browse.html';
-  }, 900);
+    showToast('Account created! Welcome to DevVerse.', 'success');
+
+    setTimeout(() => {
+      window.location.href = '../../pages/user/browse.html';
+    }, 900);
+
+  } catch (err) {
+    console.error(err);
+    showToast("Signup failed", "error");
+  }
 }
 
 
@@ -104,14 +110,13 @@ if (loginForm) {
   loginForm.addEventListener('submit', handleLogin);
 }
 
-function handleLogin(e) {
+async function handleLogin(e) {
   e.preventDefault();
   clearErrors();
 
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value;
 
-  /*  Validate presence  */
   let valid = true;
 
   if (!username) {
@@ -126,36 +131,35 @@ function handleLogin(e) {
 
   if (!valid) return;
 
-  /*  Look up user  */
-  const user = getUserByUsername(username);
+  try {
+    const result = await login(username, password);
 
-  if (!user) {
-    showFieldError('username', 'No account found with that username.');
-    return;
-  }
-
-  if (user.password !== password) {
-    showFieldError('password', 'Incorrect password. Please try again.');
-    return;
-  }
-
-  /* ── Success ─────────────────────────────────────────── */
-  setCurrentUser(user);
-  showToast('Welcome back, ' + user.username + '!', 'success');
-
-  setTimeout(function () {
-    if (user.isAdmin) {
-      window.location.href = '../../pages/admin/dashboard.html';
-    } else {
-      window.location.href = '../../pages/user/browse.html';
+    if (!result.success) {
+      showToast("Invalid username or password", "error");
+      return;
     }
-  }, 900);
+
+    showToast("Login successful", "success");
+
+    const user = result.user; // ✅ FIXED (was missing before)
+
+    setTimeout(() => {
+      if (user.isAdmin) {
+        window.location.href = '../../pages/admin/dashboard.html';
+      } else {
+        window.location.href = '../../pages/user/browse.html';
+      }
+    }, 900);
+
+  } catch (err) {
+    console.error(err);
+    showToast("Login failed", "error");
+  }
 }
 
 
 /* ================================================================
-   FORGOT PASSWORD DIALOG
-   Opens a "not implemented yet" dialog when user clicks Forgot?
+   FORGOT PASSWORD (UNCHANGED LOGIC)
 ================================================================ */
 const forgotBtn          = document.getElementById('forgot-btn');
 const forgotDialog       = document.getElementById('forgot-dialog');
@@ -163,25 +167,21 @@ const forgotDialogClose  = document.getElementById('forgot-dialog-close');
 
 if (forgotBtn && forgotDialog) {
 
-  /* Open */
-  forgotBtn.addEventListener('click', function () {
+  forgotBtn.addEventListener('click', () => {
     forgotDialog.classList.add('open');
   });
 
-  /* Close via "Got it" button */
-  forgotDialogClose.addEventListener('click', function () {
+  forgotDialogClose.addEventListener('click', () => {
     forgotDialog.classList.remove('open');
   });
 
-  /* Close on overlay click (outside the dialog box) */
-  forgotDialog.addEventListener('click', function (e) {
+  forgotDialog.addEventListener('click', (e) => {
     if (e.target === forgotDialog) {
       forgotDialog.classList.remove('open');
     }
   });
 
-  /* Close on Escape key */
-  document.addEventListener('keydown', function (e) {
+  document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && forgotDialog.classList.contains('open')) {
       forgotDialog.classList.remove('open');
     }
@@ -190,20 +190,14 @@ if (forgotBtn && forgotDialog) {
 
 
 /* ================================================================
-   HELPERS
+   HELPERS (UNCHANGED LOGIC)
 ================================================================ */
 
-/**
- * Shows an inline error below a field.
- * Adds .error to the input + makes the error span visible.
- */
 function showFieldError(fieldId, message) {
   const input = document.getElementById(fieldId);
   const error = document.getElementById(fieldId + '-error');
 
-  if (input) {
-    input.classList.add('error');
-  }
+  if (input) input.classList.add('error');
 
   if (error) {
     error.textContent = message;
@@ -211,30 +205,23 @@ function showFieldError(fieldId, message) {
   }
 }
 
-/**
- * Clears all field errors and the top-level alert.
- */
 function clearErrors() {
-  document.querySelectorAll('.form-input.error').forEach(function (el) {
-    el.classList.remove('error');
-  });
+  document.querySelectorAll('.form-input.error')
+    .forEach(el => el.classList.remove('error'));
 
-  document.querySelectorAll('.form-error.visible').forEach(function (el) {
-    el.classList.remove('visible');
-    el.textContent = '';
-  });
+  document.querySelectorAll('.form-error.visible')
+    .forEach(el => {
+      el.classList.remove('visible');
+      el.textContent = '';
+    });
 
   const alert = document.getElementById('form-alert');
   if (alert) {
     alert.style.display = 'none';
-    alert.textContent   = '';
+    alert.textContent = '';
   }
 }
 
-/**
- * Redirect any logged-in user away from auth pages immediately.
- * Called at top of script on signup.html and login.html.
- */
 function redirectIfLoggedIn() {
   const user = getCurrentUser();
   if (!user) return;
