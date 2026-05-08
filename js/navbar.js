@@ -306,3 +306,34 @@ function showToast(message, type) {
   requestAnimationFrame(function () { toast.classList.add('show'); });
   setTimeout(function () { toast.classList.remove('show'); }, 3000);
 }
+
+
+document.addEventListener(
+  'DOMContentLoaded',
+  async function () {
+
+    /*
+      Refresh current user from server
+      every page load
+
+      So if admin changed anything:
+      borrowed books
+      username
+      role
+      etc
+
+      it updates automatically
+    */
+
+    if (typeof refreshCurrentUser === 'function') {
+
+      try {
+
+        await refreshCurrentUser();
+
+      } catch (error) {
+
+        console.error(error);
+      }
+    }
+});
