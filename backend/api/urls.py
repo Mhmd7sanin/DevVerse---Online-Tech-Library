@@ -22,6 +22,7 @@ urlpatterns = [
 
     # USERS
     path("users/", views.users),
+    path("users/create/", views.create_user),
     path("users/count/", views.users_count),
     path("users/<str:user_id>/", views.user_detail),
 ]

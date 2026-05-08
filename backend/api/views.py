@@ -14,9 +14,25 @@ users_collection = db["users"]
 # =====================================
 
 def generate_book_id():
-    """Generate sequential id like b_001, b_002, ... b_999"""
-    count = books_collection.count_documents({})
-    return "b_{:03d}".format(count + 1)
+    """
+    Generate sequential ids:
+    b_001, b_002, ...
+    """
+
+    count = books_collection.count_documents({}) + 1
+
+    return f"b_{count:03d}"
+
+
+def generate_user_id():
+    """
+    Generate sequential ids:
+    u_001, u_002, ...
+    """
+
+    count = users_collection.count_documents({}) + 1
+
+    return f"u_{count:03d}"
 
 
 def serialize_book(book):
@@ -25,7 +41,6 @@ def serialize_book(book):
         return None
 
     book["_id"] = str(book["_id"])
-    book["id"] = book.get("id", book["_id"])   # prefer custom id (b_001), fall back to _id
 
     return book
 
@@ -35,8 +50,14 @@ def serialize_user(user):
     if not user:
         return None
 
-    user["_id"] = str(user["_id"])
-    user["id"] = user["_id"]   # frontend uses user.id
+    # keep MongoDB _id
+    mongo_id = str(user["_id"])
+
+    user["_id"] = mongo_id
+
+    # IMPORTANT:
+    # id should stay custom id (u_001)
+    user["id"] = user.get("id", "")
 
     # Never expose password
     if "password" in user:
@@ -126,7 +147,18 @@ def signup(request):
                 "message": "Username already exists"
             })
 
+        # =====================================
+        # GENERATE CUSTOM USER ID
+        # =====================================
+
+        users_count = users_collection.count_documents({})
+
+        custom_user_id = "u_{:03d}".format(
+            users_count + 1
+        )
+
         new_user = {
+            "id": custom_user_id,
             "username": username,
             "email": email,
             "password": password,
@@ -153,12 +185,80 @@ def signup(request):
             "success": False,
             "message": str(e)
         })
+        
+        
+
+@csrf_exempt
+def create_user(request):
+
+    if request.method != "POST":
+
+        return JsonResponse({
+            "success": False,
+            "message": "POST request required"
+        })
+
+    try:
+
+        data = json.loads(request.body)
+
+        username = data.get("username", "").strip()
+        email = data.get("email", "").strip()
+        password = data.get("password", "").strip()
+
+        if not username or not email or not password:
+
+            return JsonResponse({
+                "success": False,
+                "message": "All fields are required"
+            })
+
+        existing_user = users_collection.find_one({
+            "username": username
+        })
+
+        if existing_user:
+
+            return JsonResponse({
+                "success": False,
+                "message": "Username already exists"
+            })
+
+        new_user = {
+            "customId": generate_user_id(),
+            "username": username,
+            "email": email,
+            "password": password,
+            "isAdmin": data.get("isAdmin", False),
+            "borrowedBooks": [],
+            "createdAt": data.get("createdAt", "")
+        }
+
+        result = users_collection.insert_one(new_user)
+
+        created_user = users_collection.find_one({
+            "_id": result.inserted_id
+        })
+
+        return JsonResponse({
+            "success": True,
+            "message": "User created successfully",
+            "user": serialize_user(created_user)
+        })
+
+    except Exception as e:
+
+        return JsonResponse({
+            "success": False,
+            "message": str(e)
+        })
 
 
 @csrf_exempt
 def login(request):
 
     if request.method != "POST":
+
         return JsonResponse({
             "success": False,
             "message": "POST request required"
@@ -177,6 +277,7 @@ def login(request):
         })
 
         if not user:
+
             return JsonResponse({
                 "success": False,
                 "message": "Invalid username or password"
@@ -228,7 +329,7 @@ def books(request):
             data = json.loads(request.body)
 
             new_book = {
-                "id": generate_book_id(),   # e.g. "b_001"
+                "id": generate_book_id(),
                 "name": data.get("name", ""),
                 "author": data.get("author", ""),
                 "category": data.get("category", ""),
@@ -274,6 +375,7 @@ def book_detail(request, book_id):
         })
 
         if not book:
+
             return JsonResponse({
                 "success": False,
                 "message": "Book not found"
@@ -300,7 +402,9 @@ def book_detail(request, book_id):
                 "category": data.get("category", book.get("category")),
                 "description": data.get("description", book.get("description")),
                 "image": data.get("image", book.get("image")),
-                "isAvailable": data.get("isAvailable", book.get("isAvailable"))
+                "isAvailable": data.get("isAvailable", book.get("isAvailable")),
+                "borrowedBy": data.get("borrowedBy", book.get("borrowedBy")),
+                "borrowedAt": data.get("borrowedAt", book.get("borrowedAt"))
             }
 
             books_collection.update_one(
@@ -434,10 +538,9 @@ def user_detail(request, user_id):
             updated_data = {
                 "username": data.get("username", user.get("username")),
                 "email": data.get("email", user.get("email")),
-                "isAdmin": data.get("isAdmin", user.get("isAdmin", False))
+                "isAdmin": data.get("isAdmin", user.get("isAdmin"))
             }
 
-            # Optional password update
             if "password" in data and data["password"]:
                 updated_data["password"] = data["password"]
 
@@ -500,9 +603,9 @@ def borrow_book(request, book_id):
 
         data = json.loads(request.body)
 
-        user_id = data.get("user_id")   # MongoDB _id string of the user
+        user_mongo_id = data.get("user_id")
 
-        if not user_id:
+        if not user_mongo_id:
 
             return JsonResponse({
                 "success": False,
@@ -528,7 +631,7 @@ def borrow_book(request, book_id):
             })
 
         user = users_collection.find_one({
-            "_id": ObjectId(user_id)
+            "_id": ObjectId(user_mongo_id)
         })
 
         if not user:
@@ -538,24 +641,48 @@ def borrow_book(request, book_id):
                 "message": "User not found"
             })
 
-        borrowed_at = data.get("borrowedAt", "")
-        book_custom_id = book.get("id")   # e.g. "b_041"
+        borrowed_at = data.get(
+            "borrowedAt",
+            ""
+        )
 
-        # Update book — store user's MongoDB _id as borrowedBy
+        # =====================================
+        # IMPORTANT
+        # =====================================
+
+        # store CUSTOM ids
+        user_custom_id = user.get("id")
+        book_custom_id = book.get("id")
+
+        # =====================================
+        # UPDATE BOOK
+        # =====================================
+
         books_collection.update_one(
-            {"_id": ObjectId(book_id)},
+            {
+                "_id": ObjectId(book_id)
+            },
             {
                 "$set": {
                     "isAvailable": False,
-                    "borrowedBy": user_id,
+
+                    # IMPORTANT:
+                    # store u_001
+                    "borrowedBy": user_custom_id,
+
                     "borrowedAt": borrowed_at
                 }
             }
         )
 
-        # Update user — push object { bookId: "b_041", borrowedAt: "..." }
+        # =====================================
+        # UPDATE USER
+        # =====================================
+
         users_collection.update_one(
-            {"_id": ObjectId(user_id)},
+            {
+                "_id": ObjectId(user_mongo_id)
+            },
             {
                 "$push": {
                     "borrowedBooks": {
@@ -571,7 +698,7 @@ def borrow_book(request, book_id):
         })
 
         updated_user = users_collection.find_one({
-            "_id": ObjectId(user_id)
+            "_id": ObjectId(user_mongo_id)
         })
 
         return JsonResponse({
@@ -587,7 +714,7 @@ def borrow_book(request, book_id):
             "success": False,
             "message": str(e)
         })
-
+        
 
 # =====================================
 # RETURN BOOK
@@ -607,7 +734,125 @@ def return_book(request, book_id):
 
         data = json.loads(request.body)
 
-        user_id = data.get("user_id")   # MongoDB _id string of the user
+        # MongoDB _id of user
+        user_id = data.get("user_id")
+
+        if not user_id:
+
+            return JsonResponse({
+                "success": False,
+                "message": "user_id is required"
+            })
+
+        # =========================
+        # FIND BOOK
+        # =========================
+
+        book = books_collection.find_one({
+            "_id": ObjectId(book_id)
+        })
+
+        if not book:
+
+            return JsonResponse({
+                "success": False,
+                "message": "Book not found"
+            })
+
+        # =========================
+        # FIND USER
+        # =========================
+
+        user = users_collection.find_one({
+            "_id": ObjectId(user_id)
+        })
+
+        if not user:
+
+            return JsonResponse({
+                "success": False,
+                "message": "User not found"
+            })
+
+        # Custom sequential book id
+        book_custom_id = book.get("id")
+
+        # =========================
+        # UPDATE BOOK
+        # =========================
+
+        books_collection.update_one(
+            {
+                "_id": ObjectId(book_id)
+            },
+            {
+                "$set": {
+                    "isAvailable": True,
+                    "borrowedBy": None,
+                    "borrowedAt": None
+                }
+            }
+        )
+
+        # =========================
+        # REMOVE FROM USER
+        # =========================
+
+        users_collection.update_one(
+            {
+                "_id": ObjectId(user_id)
+            },
+            {
+                "$pull": {
+                    "borrowedBooks": {
+                        "bookId": book_custom_id
+                    }
+                }
+            }
+        )
+
+        # =========================
+        # FETCH UPDATED DATA
+        # =========================
+
+        updated_book = books_collection.find_one({
+            "_id": ObjectId(book_id)
+        })
+
+        updated_user = users_collection.find_one({
+            "_id": ObjectId(user_id)
+        })
+
+        # =========================
+        # RESPONSE
+        # =========================
+
+        return JsonResponse({
+            "success": True,
+            "message": "Book returned successfully",
+            "book": serialize_book(updated_book),
+            "user": serialize_user(updated_user)
+        })
+
+    except Exception as e:
+
+        return JsonResponse({
+            "success": False,
+            "message": str(e)
+        })
+
+    if request.method != "POST":
+
+        return JsonResponse({
+            "success": False,
+            "message": "POST request required"
+        })
+
+    try:
+
+        data = json.loads(request.body)
+
+        user_id = data.get("user_id")
 
         if not user_id:
 
@@ -627,9 +872,10 @@ def return_book(request, book_id):
                 "message": "Book not found"
             })
 
-        book_custom_id = book.get("id")   # e.g. "b_041"
+        # IMPORTANT
+        # Remove by sequential book id
+        book_custom_id = book.get("id")
 
-        # Update book
         books_collection.update_one(
             {"_id": ObjectId(book_id)},
             {
@@ -641,7 +887,6 @@ def return_book(request, book_id):
             }
         )
 
-        # Remove the matching borrowed entry from user by bookId
         users_collection.update_one(
             {"_id": ObjectId(user_id)},
             {
