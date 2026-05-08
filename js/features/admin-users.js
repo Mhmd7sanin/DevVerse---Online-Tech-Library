@@ -1,10 +1,11 @@
+
+//admin-users.js file    Done
+
 document.addEventListener("DOMContentLoaded", () => {
   initPage();
 });
 
-/**
- * Initial page setup
- */
+
 async function initPage() {
   const users = await getUsers();
 
@@ -121,7 +122,7 @@ async function filterUsers() {
 
 
 // ======================================
-// DELETE FLOW (FIXED TO USE API)
+// DELETE FLOW 
 // ======================================
 
 let selectedUserId = null;
