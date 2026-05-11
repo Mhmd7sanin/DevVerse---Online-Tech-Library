@@ -684,7 +684,7 @@ def borrow_book(request, book_id):
                 "_id": ObjectId(user_mongo_id)
             },
             {
-                "$push": {
+                "$addToSet": {
                     "borrowedBooks": {
                         "bookId": book_custom_id,
                         "borrowedAt": borrowed_at
