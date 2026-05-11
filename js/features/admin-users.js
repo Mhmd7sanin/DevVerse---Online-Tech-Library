@@ -1,119 +1,180 @@
+/* ============================================================
+   DevVerse — admin-users.js
+   Backend API Version + Original UI Design
+============================================================ */
 
-//admin-users.js file    Done
+let selectedUserId = null;
 
-document.addEventListener("DOMContentLoaded", () => {
+
+/* ============================================================
+   INIT
+============================================================ */
+
+document.addEventListener('DOMContentLoaded', () => {
   initPage();
 });
 
-
 async function initPage() {
-  const users = await getUsers();
 
-  renderUsersTable(users);
+  requireAuth(true);
 
-  const searchInput = document.getElementById("user-search");
+  const searchInput = document.getElementById('user-search');
+  const confirmBtn = document.getElementById('confirm-delete-btn');
+
   if (searchInput) {
-    searchInput.addEventListener("input", filterUsers);
+    searchInput.addEventListener('input', filterUsers);
   }
 
-  const confirmBtn = document.getElementById("confirm-delete-btn");
   if (confirmBtn) {
-    confirmBtn.addEventListener("click", confirmDeleteUser);
+    confirmBtn.addEventListener('click', confirmDelete);
   }
+
+  const users = await getUsers();
+  renderUsersTable(users);
 }
 
-/**
- * Renders the user table rows or shows empty state
- */
+
+/* ============================================================
+   RENDER TABLE
+============================================================ */
+
 function renderUsersTable(usersArray) {
-  const tbody = document.getElementById("users-tbody");
-  const userCountEl = document.getElementById("user-count");
+
+  const tbody = document.getElementById('users-tbody');
+  const userCountEl = document.getElementById('user-count');
 
   if (!tbody) return;
 
   userCountEl.textContent = usersArray.length;
 
   if (usersArray.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px;">No users found.</td></tr>`;
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" style="text-align:center; padding:20px;">
+          No users found.
+        </td>
+      </tr>
+    `;
+
     return;
   }
 
-  tbody.innerHTML = usersArray.map(buildUserRow).join("");
+  tbody.innerHTML = usersArray.map(buildUserRow).join('');
 }
 
-/**
- * Builds ONE row of HTML for ONE user
- */
+
+/* ============================================================
+   BUILD USER ROW
+============================================================ */
+
 function buildUserRow(user) {
+
   const initials = getInitials(user.username);
+
   const isAdmin = user.isAdmin === true;
 
-  const roleClass = isAdmin ? "role-badge--admin" : "role-badge--user";
-  const roleText = isAdmin ? "ADMIN" : "USER";
+  const roleClass =
+    isAdmin
+      ? 'role-badge--admin'
+      : 'role-badge--user';
+
+  const roleText =
+    isAdmin
+      ? 'ADMIN'
+      : 'USER';
 
   const currentUser = getCurrentUser();
 
   const canDelete =
     !isAdmin ||
-    (currentUser?.username === "admin" && user.username !== "admin");
+    (
+      currentUser?.username === 'admin' &&
+      user.username !== 'admin'
+    );
 
   return `
     <tr>
+
       <td>
         <div class="user-info">
-          <div class="avatar">${initials}</div>
-          <div class="user-details">
-            <span class="name">${user.username}</span>
-            <span class="email">${user.email}</span>
+
+          <div class="avatar">
+            ${initials}
           </div>
+
+          <div class="user-details">
+            <span class="name">
+              ${escapeHtml(user.username)}
+            </span>
+
+            <span class="email">
+              ${escapeHtml(user.email || '')}
+            </span>
+          </div>
+
         </div>
       </td>
 
       <td>
-        <span class="role-badge ${roleClass}">${roleText}</span>
+        <span class="role-badge ${roleClass}">
+          ${roleText}
+        </span>
       </td>
 
-      <td>${user.borrowedBooks.length} books</td>
+      <td>
+        ${(user.borrowedBooks || []).length} books
+      </td>
 
       <td>
         <div class="table-actions">
-          <span class="action-edit" onclick="editUser('${user.id}')">Edit</span>
+
+          <span
+            class="action-edit"
+            onclick="editUser('${user._id}')"
+          >
+            Edit
+          </span>
+
           ${
             canDelete
-              ? `<span class="action-delete" onclick="openDeleteDialog('${user.id}')">Delete</span>`
+              ? `
+                <span
+                  class="action-delete"
+                  onclick="openDeleteDialog('${user._id}')"
+                >
+                  Delete
+                </span>
+              `
               : '<span style="color:#ccc">—</span>'
           }
+
         </div>
       </td>
+
     </tr>
   `;
 }
 
-/**
- * Initials helper
- */
-function getInitials(username) {
-  if (!username) return "??";
-  const parts = username.split(/[ _]/);
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[1][0]).toUpperCase();
-  }
-  return username.substring(0, 2).toUpperCase();
-}
 
-/**
- * Filter users
- */
+/* ============================================================
+   SEARCH USERS
+============================================================ */
+
 async function filterUsers() {
-  const query = document.getElementById("user-search").value.toLowerCase().trim();
+
+  const query = document
+    .getElementById('user-search')
+    .value
+    .toLowerCase()
+    .trim();
 
   const allUsers = await getUsers();
 
   const filtered = query
-    ? allUsers.filter(
-        (user) =>
-          user.username.toLowerCase().includes(query) ||
-          user.email.toLowerCase().includes(query)
+    ? allUsers.filter(user =>
+        user.username.toLowerCase().includes(query) ||
+        (user.email || '').toLowerCase().includes(query)
       )
     : allUsers;
 
@@ -121,70 +182,148 @@ async function filterUsers() {
 }
 
 
-// ======================================
-// DELETE FLOW 
-// ======================================
-
-let selectedUserId = null;
+/* ============================================================
+   DELETE DIALOG
+============================================================ */
 
 function openDeleteDialog(userId) {
+
   selectedUserId = userId;
-  document.getElementById("delete-overlay").classList.add("open");
+
+  const overlay = document.getElementById('delete-overlay');
+
+  if (overlay) {
+    overlay.classList.add('open');
+  }
 }
 
 function closeDeleteDialog() {
+
   selectedUserId = null;
-  document.getElementById("delete-overlay").classList.remove("open");
+
+  const overlay = document.getElementById('delete-overlay');
+
+  if (overlay) {
+    overlay.classList.remove('open');
+  }
 }
 
-async function confirmDeleteUser() {
+
+/* ============================================================
+   CONFIRM DELETE
+============================================================ */
+
+async function confirmDelete() {
+
   if (!selectedUserId) return;
 
   try {
-    await deleteUser(selectedUserId); 
+
+    await deleteUser(selectedUserId);
 
     closeDeleteDialog();
 
-    const users = await getUsers(); // refresh from backend
+    const users = await getUsers();
     renderUsersTable(users);
 
-    showToast("User deleted successfully", "success");
+    showToast('User deleted successfully', 'success');
 
   } catch (error) {
+
     console.error(error);
-    showToast("Failed to delete user", "error");
+
+    showToast('Failed to delete user', 'danger');
   }
 }
 
 
-// ======================================
-// TOAST
-// ======================================
-
-function showToast(message, type = "default") {
-  const toast = document.createElement("div");
-  toast.className = `toast toast--${type}`;
-  toast.textContent = message;
-
-  document.body.appendChild(toast);
-
-  setTimeout(() => toast.classList.add("show"), 10);
-
-  setTimeout(() => {
-    toast.classList.remove("show");
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
-}
-
-
-// ======================================
-// EDIT USER
-// ======================================
+/* ============================================================
+   EDIT USER
+============================================================ */
 
 function editUser(userId) {
-  if (userId === "u_001") {
-    openMainAdminEditDialog();
+
+  const currentUser = getCurrentUser();
+
+  /*
+    Main admin protection
+  */
+
+  if (
+    currentUser?.username !== 'admin' &&
+    userId === currentUser?._id
+  ) {
     return;
   }
-  window.location.href = `edit-user.html?id=${userId}`;
+
+  /*
+    Open protected admin dialog
+  */
+
+  if (userId) {
+
+    getUserById(userId).then(user => {
+
+      if (user?.username === 'admin') {
+        openMainAdminEditDialog();
+        return;
+      }
+
+      window.location.href =
+        `edit-user.html?id=${userId}`;
+    });
+  }
+}
+
+
+/* ============================================================
+   MAIN ADMIN DIALOG
+============================================================ */
+
+function openMainAdminEditDialog() {
+
+  const overlay = document.getElementById('edit-overlay');
+
+  if (overlay) {
+    overlay.classList.add('open');
+  }
+}
+
+function closeEditDialog() {
+
+  const overlay = document.getElementById('edit-overlay');
+
+  if (overlay) {
+    overlay.classList.remove('open');
+  }
+}
+
+
+/* ============================================================
+   HELPERS
+============================================================ */
+
+function getInitials(username) {
+
+  if (!username) return '??';
+
+  const parts = username.split(/[ _]/);
+
+  if (parts.length >= 2) {
+    return (
+      parts[0][0] +
+      parts[1][0]
+    ).toUpperCase();
+  }
+
+  return username.substring(0, 2).toUpperCase();
+}
+
+function escapeHtml(str) {
+
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }

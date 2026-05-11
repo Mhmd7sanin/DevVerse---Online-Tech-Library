@@ -1,31 +1,49 @@
 /* ============================================================
-   edit-user.js 
+   DevVerse — edit-user.js
+   Backend API Version + Original UI Design
+============================================================ */
+
+
+/* ============================================================
+   AUTH
 ============================================================ */
 
 const adminUser = requireAuth(true);
 
+
+/* ============================================================
+   URL PARAMS
+============================================================ */
+
 const params = new URLSearchParams(window.location.search);
+
 const userId = params.get('id');
 
 if (!userId) {
-  window.location.href = '../../pages/admin/users.html';
+  window.location.href = 'users.html';
 }
+
 
 let targetUser = null;
 
 
 /* ============================================================
-   DOM REFS
+   DOM
 ============================================================ */
 
 const headingUsername = document.getElementById('heading-username');
-const usernameInput   = document.getElementById('edit-username');
-const emailInput      = document.getElementById('edit-email');
-const isAdminCheckbox = document.getElementById('edit-is-admin');
-const updateBtn       = document.getElementById('update-btn');
 
-const borrowedList    = document.getElementById('borrowed-list');
-const borrowedEmpty   = document.getElementById('borrowed-empty');
+const usernameInput = document.getElementById('edit-username');
+
+const emailInput = document.getElementById('edit-email');
+
+const isAdminCheckbox = document.getElementById('edit-is-admin');
+
+const updateBtn = document.getElementById('update-btn');
+
+const borrowedList = document.getElementById('borrowed-list');
+
+const borrowedEmpty = document.getElementById('borrowed-empty');
 
 
 /* ============================================================
@@ -39,7 +57,26 @@ async function initPage() {
   targetUser = await getUserById(userId);
 
   if (!targetUser) {
-    window.location.href = '../../pages/admin/users.html';
+    window.location.href = 'users.html';
+    return;
+  }
+
+  /*
+    Prevent editing main admin
+  */
+
+  if (targetUser.username === 'admin') {
+
+    const overlay = document.getElementById('edit-overlay');
+
+    if (overlay) {
+      overlay.classList.add('open');
+    }
+
+    setTimeout(() => {
+      window.location.href = 'users.html';
+    }, 1800);
+
     return;
   }
 
@@ -54,19 +91,21 @@ async function initPage() {
 function populatePage() {
 
   document.title =
-    'Edit ' + targetUser.username + ' — DevVerse Admin';
+    'Edit ' +
+    targetUser.username +
+    ' — DevVerse Admin';
 
   headingUsername.textContent =
     '@' + targetUser.username;
 
   usernameInput.value =
-    targetUser.username || '';
+    targetUser.username;
 
   emailInput.value =
     targetUser.email || '';
 
   isAdminCheckbox.checked =
-    targetUser.isAdmin || false;
+    targetUser.isAdmin;
 
   renderBorrowedBooks();
 }
@@ -80,13 +119,20 @@ updateBtn.addEventListener('click', async function () {
 
   clearErrors();
 
-  const newUsername = usernameInput.value.trim();
-  const newEmail    = emailInput.value.trim();
-  const newIsAdmin  = isAdminCheckbox.checked;
+  const newUsername =
+    usernameInput.value.trim();
+
+  const newEmail =
+    emailInput.value.trim();
+
+  const newIsAdmin =
+    isAdminCheckbox.checked;
 
   let valid = true;
 
-  /* Username validation */
+  /*
+    Username validation
+  */
 
   if (!newUsername) {
 
@@ -107,20 +153,13 @@ updateBtn.addEventListener('click', async function () {
     valid = false;
   }
 
-  /* Email validation */
+  /*
+    Email validation
+  */
 
-  if (!newEmail) {
-
-    showFieldError(
-      'edit-email',
-      'Email is required.'
-    );
-
-    valid = false;
-
-  } else if (
-    !newEmail.includes('@') ||
-    !newEmail.includes('.')
+  if (
+    !newEmail ||
+    !newEmail.includes('@')
   ) {
 
     showFieldError(
@@ -133,15 +172,34 @@ updateBtn.addEventListener('click', async function () {
 
   if (!valid) return;
 
+  /*
+    Prevent using admin username
+  */
 
-  /* Username uniqueness */
+  if (
+    newUsername.toLowerCase() === 'admin'
+  ) {
 
-  const existingUser =
+    const overlay =
+      document.getElementById('edit-overlay');
+
+    if (overlay) {
+      overlay.classList.add('open');
+    }
+
+    return;
+  }
+
+  /*
+    Check uniqueness
+  */
+
+  const existing =
     await getUserByUsername(newUsername);
 
   if (
-    existingUser &&
-    existingUser._id !== targetUser._id
+    existing &&
+    existing._id !== targetUser._id
   ) {
 
     showFieldError(
@@ -152,34 +210,43 @@ updateBtn.addEventListener('click', async function () {
     return;
   }
 
+  /*
+    Apply changes
+  */
 
   targetUser.username = newUsername;
-  targetUser.email    = newEmail;
-  targetUser.isAdmin  = newIsAdmin;
+  targetUser.email = newEmail;
+  targetUser.isAdmin = newIsAdmin;
 
+  try {
 
-  const updatedUser =
     await updateUser(targetUser);
 
-  targetUser = updatedUser;
+    /*
+      Refresh local storage
+    */
 
+    if (adminUser._id === targetUser._id) {
+      setCurrentUser(targetUser);
+    }
 
+    headingUsername.textContent =
+      '@' + targetUser.username;
 
-  if (
-    adminUser &&
-    adminUser._id === updatedUser._id
-  ) {
-    setCurrentUser(updatedUser);
+    showToast(
+      'User info updated successfully.',
+      'success'
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    showToast(
+      'Failed to update user.',
+      'danger'
+    );
   }
-
-
-  headingUsername.textContent =
-    '@' + updatedUser.username;
-
-  showToast(
-    'User info updated successfully.',
-    'success'
-  );
 });
 
 
@@ -189,8 +256,7 @@ updateBtn.addEventListener('click', async function () {
 
 async function renderBorrowedBooks() {
 
-  const borrowed =
-    targetUser.borrowedBooks || [];
+  const borrowed = targetUser.borrowedBooks || [];
 
   if (!borrowed.length) {
 
@@ -203,9 +269,18 @@ async function renderBorrowedBooks() {
   borrowedEmpty.style.display = 'none';
   borrowedList.style.display = 'flex';
 
+  /*
+    Get all books once
+  */
+
   const allBooks = await getBooks();
 
-  borrowedList.innerHTML = borrowed.map(function (entry) {
+  const htmlParts = borrowed.map(function (entry) {
+
+    /*
+      borrowedBooks stores custom id like:
+      b_001
+    */
 
     const book = allBooks.find(
       b => b.id === entry.bookId
@@ -217,7 +292,10 @@ async function renderBorrowedBooks() {
       formatDate(entry.borrowedAt);
 
     return `
-      <div class="eu-book-item">
+      <div
+        class="eu-book-item"
+        data-book-id="${book._id}"
+      >
 
         <div class="eu-book-item__left">
 
@@ -249,8 +327,9 @@ async function renderBorrowedBooks() {
 
       </div>
     `;
+  });
 
-  }).join('');
+  borrowedList.innerHTML = htmlParts.join('');
 }
 
 
@@ -258,25 +337,51 @@ async function renderBorrowedBooks() {
    MARK AS RETURNED
 ============================================================ */
 
-async function markAsReturned(bookMongoId) {
+async function markAsReturned(bookId) {
 
-  const currentUser =
-    await getUserById(targetUser._id);
+  try {
 
-  await returnBook(
-    bookMongoId,
-    currentUser._id
-  );
+    await returnBook(
+      bookId,
+      targetUser._id
+    );
 
-  targetUser =
-    await getUserById(targetUser._id);
+    /*
+      Refresh user
+    */
 
-  renderBorrowedBooks();
+    targetUser =
+      await getUserById(targetUser._id);
 
-  showToast(
-    'Book marked as returned.',
-    'success'
-  );
+    /*
+      Refresh current session
+    */
+
+    const currentUser = getCurrentUser();
+
+    if (
+      currentUser &&
+      currentUser._id === targetUser._id
+    ) {
+      setCurrentUser(targetUser);
+    }
+
+    renderBorrowedBooks();
+
+    showToast(
+      'Book marked as returned.',
+      'success'
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    showToast(
+      'Failed to return book.',
+      'danger'
+    );
+  }
 }
 
 
@@ -290,7 +395,9 @@ function showFieldError(fieldId, message) {
     document.getElementById(fieldId);
 
   const error =
-    document.getElementById(fieldId + '-error');
+    document.getElementById(
+      fieldId + '-error'
+    );
 
   if (input) {
     input.classList.add('error');
@@ -299,17 +406,16 @@ function showFieldError(fieldId, message) {
   if (error) {
 
     error.textContent = message;
+
     error.classList.add('visible');
   }
 }
-
 
 function clearErrors() {
 
   document
     .querySelectorAll('.form-input.error')
     .forEach(function (el) {
-
       el.classList.remove('error');
     });
 
@@ -318,16 +424,18 @@ function clearErrors() {
     .forEach(function (el) {
 
       el.classList.remove('visible');
+
       el.textContent = '';
     });
 }
-
 
 function formatDate(dateStr) {
 
   if (!dateStr) return '';
 
-  const d = new Date(dateStr);
+  const d = new Date(
+    dateStr + 'T00:00:00'
+  );
 
   return d.toLocaleDateString(
     'en-US',
@@ -339,13 +447,11 @@ function formatDate(dateStr) {
   );
 }
 
-
 function escapeHtml(str) {
 
   return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+    .replace(/"/g, '&quot;');
 }
